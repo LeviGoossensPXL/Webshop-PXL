@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Webshop.Domain.Entities
 {
-    public class Class1
+    public class Class1 //placeholder TODO: delete
     {
     }
 }
