@@ -26,7 +26,7 @@ services:
     networks:
       - webshop-network
     volumes:
-      - "webshop-db:/var/lib/postgresql/data"
+      - "webshop-db:/var/lib/postgresql"
     ports:
       - "5432:5432"
     healthcheck:
