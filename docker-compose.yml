@@ -1,7 +1,7 @@
 services:
-  webshop.app:
+  webshop.website:
     image: webapp
-    container_name: webshop.app
+    container_name: webshop.website
     build:
       context: .
       dockerfile: Dockerfile
