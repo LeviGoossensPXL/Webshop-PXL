@@ -7,11 +7,11 @@ services:
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
+      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5331;Database=webshop;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
-      - "8080:8080"
+      - "8077:8080"
     depends_on:
       webshop.database:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
     volumes:
       - "webshop-db:/var/lib/postgresql"
     ports:
-      - "5432:5432"
+      - "5331:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
