@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Webshop.Domain.Entities
+{
+    public class Category
+    {
+        public int CategoryId { get; set; }
+        public string Naam { get; set; } = string.Empty;
+        // Lijst met producten in deze categorie.
+        public ICollection<Product> Producten { get; set; } = new List<Product>();
+    }
+}
