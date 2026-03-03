@@ -3,9 +3,9 @@
 namespace Webshop.Domain.Entities
 {
     // Deze klasse bevat de details van elk specifiek product in een bestelling.
-    public class OrderItem
+    public class OrderLine
     {
-        public int Id { get; set; }
+        public int OrderLineId { get; set; }
 
        
         public int OrderId { get; set; }
@@ -17,5 +17,6 @@ namespace Webshop.Domain.Entities
 
         // Het aantal stuks dat de klant bestelt.
         public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace Webshop.Domain.Entities
 
       
         public string UserId { get; set; } = string.Empty;
-        public User User { get; set; } = null!;
+        
 
 
         public Adres DeliveryAddress { get; set; } = new Adres();

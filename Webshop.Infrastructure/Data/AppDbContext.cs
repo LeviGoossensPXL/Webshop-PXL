@@ -32,7 +32,7 @@ namespace Webshop.Infrastructure.Data
     //public DbSet<Order> Orders { get; set; }
 
     //// Tabel voor de specifieke producten binnen een bestelling
-    //public DbSet<OrderItem> OrderItems { get; set; }
+    //public DbSet<OrderLine> OrderLines { get; set; }
 
     //// TODO: dit is optioneel, afhankelijk van hoe We de adressen willen beheren. we kunnen ook overwegen om adressen direct in de Order-tabel op te slaan als JSON of als losse kolommen.
     //public DbSet<Adres> Adressen { get; set; }

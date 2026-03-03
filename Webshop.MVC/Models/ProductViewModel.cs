@@ -17,6 +17,6 @@ namespace Webshop.MVC.Models
         public string CategoryName { get; set; } = string.Empty;
 
         // Voor de afbeeldingen die we later gaan uploaden.
-        public string FotoUrl { get; set; } = "/images/default.jpg";
+        public string ImageUrl { get; set; } = "/images/default.jpg";
     }
 }
