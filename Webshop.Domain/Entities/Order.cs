@@ -23,6 +23,6 @@ namespace Webshop.Domain.Entities
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         // List of specific items in this order
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<OrderLine> OrderLines { get; set; } = new List<OrderLine>();
     }
 }
