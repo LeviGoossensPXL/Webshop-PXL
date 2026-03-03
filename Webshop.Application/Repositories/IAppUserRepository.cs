@@ -7,8 +7,10 @@ using Webshop.Domain.Entities;
 
 namespace Webshop.Application.Repositories
 {
-    public interface IUserRepository
+    public interface IAppUserRepository
     {
         Task<IEnumerable<AppUser>> GetAll();
+        Task<AppUser?> GetById(string id);
+        Task Delete(string id);
     }
 }

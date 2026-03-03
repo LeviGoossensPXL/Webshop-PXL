@@ -10,5 +10,6 @@ namespace Webshop.Application.Repositories
     public interface ICategoryRepository
     {
         Task<IEnumerable<Category>> GetAll();
+        Task<Category?> GetById(int id);
     }
 }
