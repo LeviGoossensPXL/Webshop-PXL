@@ -8,6 +8,6 @@ namespace Webshop.Domain.Entities
         public int CategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
         // Lijst met producten in deze categorie.
-        public ICollection<Product> Producten { get; set; } = new List<Product>();
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
