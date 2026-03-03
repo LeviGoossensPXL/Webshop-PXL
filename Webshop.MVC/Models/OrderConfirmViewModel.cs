@@ -6,8 +6,8 @@ namespace Webshop.MVC.Models
     public class OrderConfirmViewModel
     {
         public int OrderId { get; set; }
-        public DateTime Datum { get; set; }
-        public decimal Totaal { get; set; }
-        public string KlantNaam { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+        public decimal Total { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
     }
 }

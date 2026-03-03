@@ -8,13 +8,13 @@ namespace Webshop.MVC.Models
         public int Id { get; set; }
 
         
-        public string Naam { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
        
-        public string PrijsDisplay { get; set; } = string.Empty;
+        public string PriceDisplay { get; set; } = string.Empty;
 
        
-        public string CategorieNaam { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
 
         // Voor de afbeeldingen die we later gaan uploaden.
         public string FotoUrl { get; set; } = "/images/default.jpg";

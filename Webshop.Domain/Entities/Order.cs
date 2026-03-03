@@ -20,7 +20,7 @@ namespace Webshop.Domain.Entities
         public int Status { get; set; }
 
        
-        public DateTime OrderDatum { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         // List of specific items in this order
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
