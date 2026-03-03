@@ -9,7 +9,5 @@ namespace Webshop.Domain.Entities
 {
     public class AppUser : IdentityUser
     {
-        public int AppUserId { get; set; }
-        public string UserId { get; set; } // id from IdentityUser
     }
 }
