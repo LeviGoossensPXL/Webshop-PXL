@@ -5,21 +5,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Webshop.Domain.Entities;
 
 namespace Webshop.Infrastructure.Data
 {
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
+
         public DbSet<Category> Categories { get; set; }
 
         public DbSet<Product> Products { get; set; }
-
-        // public DbSet<User> Users { get; set; }
 
         //// Tabel voor de algemene bestelinformatie
         public DbSet<Order> Orders { get; set; }
@@ -28,7 +33,7 @@ namespace Webshop.Infrastructure.Data
         public DbSet<OrderLine> OrderLines { get; set; }
 
         //// TODO: dit is optioneel, afhankelijk van hoe We de adressen willen beheren. we kunnen ook overwegen om adressen direct in de Order-tabel op te slaan als JSON of als losse kolommen.
-        public DbSet<Address> Adressen { get; set; }
+        public DbSet<Address> Addresses { get; set; }
     }
 
 }
