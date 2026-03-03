@@ -10,7 +10,7 @@ namespace Webshop.MVC.Models
         // De status als tekst (bijv. "In behandeling").
         public string StatusDescription { get; set; } = string.Empty;
 
-        public Adres DeliveryAddress { get; set; } = new Adres();
+        public Address DeliveryAddress { get; set; }
 
         public decimal TotalAmount { get; set; }
     }

@@ -9,17 +9,15 @@ namespace Webshop.Domain.Entities
         
         public int OrderId { get; set; }
 
-      
-        public string UserId { get; set; } = string.Empty;
         
+        public string UserId { get; set; }
 
-
-        public Adres DeliveryAddress { get; set; } = new Adres();
+        public Address DeliveryAddress { get; set; }
 
         // Order status (e.g., 1 = Pending, 2 = Shipped)
         public int Status { get; set; }
 
-       
+
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         // List of specific items in this order

@@ -3,9 +3,9 @@
 namespace Webshop.Domain.Entities
 {
     
-    public class Adres
+    public class Address
     {
-        
+        public int AddressId { get; set; }
         public string Street { get; set; } = string.Empty;
 
         
