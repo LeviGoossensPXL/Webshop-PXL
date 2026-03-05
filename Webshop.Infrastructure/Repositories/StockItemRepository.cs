@@ -27,7 +27,7 @@ namespace Webshop.Infrastructure.Repositories
         public async Task Delete(int id)
         {
             var item = await _context.StockItems.FindAsync(id);
-            if ((item != null))
+            if (item != null)
             {
                 _context.StockItems.Remove(item);
                 await _context.SaveChangesAsync();
