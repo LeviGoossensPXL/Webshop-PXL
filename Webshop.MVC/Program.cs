@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Webshop.Application.Repositories;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IOrderRepository, IOrderRepository>();
 
 var app = builder.Build();
 
