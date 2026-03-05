@@ -20,6 +20,7 @@ builder.Services.AddControllersWithViews();
 // Register application services and repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 var app = builder.Build();
 
