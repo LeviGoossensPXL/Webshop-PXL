@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Webshop.Domain.Entities
+namespace Webshop.Infrastructure.Repositories
 {
-    public class Class1 //placeholder TODO: delete
+    internal class Class1
     {
+        // TODO for levi: delete class
     }
 }

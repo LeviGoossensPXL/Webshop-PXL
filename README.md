@@ -1,12 +1,50 @@
 # Introduction 
 TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# structure guidelines
+```
+.
+├── Webshop
+│   ├── Webshop.Application ------------------ (Application Layer (Interfaces))
+│   │   ├── Repositories
+│   │   │   └── interface IProductRepository
+│   │   └── Services
+│   │       └── interface IProductService
+│   │ 
+│   ├── Webshop.Domain ----------------------- (Domain Layer (No dependencies))
+│   │   └── Entities ------------------------- (Database Entities)
+│   │       └── class Product
+│   │
+│   ├── Webshop.Infrastructure --------------- (Infrastructure Layer (EF Core Implementation))
+│   │   ├── Data
+│   │   │   └── class AppDbContext
+│   │   ├── Repositories
+│   │   │   └── class ProductRepository
+│   │   ├── Services
+│   │   │   └── class ProductService
+│   │   └── Migrations  
+│   │
+│   ├── Webshop.MVC -------------------------- (Website Layer)
+│   │   ├── Controllers
+│   │   │   ├── class HomeController
+│   │   │   └── class ProductController
+│   │   ├── Models --------------------------- (ViewModels)
+│   │   │   └── class ProductViewModel
+│   │   └── Views ---------------------------- (All Webpages)
+│   │       ├── Home
+│   │       │   ├── Index.cshtml
+│   │       │   └── Privacy.cshtml
+│   │       ├── Product
+│   │       │   ├── Index.cshtml
+│   │       │   └── Create.cshtml
+│   │       ├── _ViewImports.cshtml
+│   │       └── _ViewStart.cshtml
+│   ├── appsettings.json (settings for the app)
+│   └── class Program (main program)
+├── docker-compose.yml (all containers for this C# project)
+├── Dockerfile (docker container of this C# project)
+└── README.md
+```
 
 # Build and Test
 ## Run app
