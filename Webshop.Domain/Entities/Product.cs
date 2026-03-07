@@ -15,7 +15,7 @@ namespace Webshop.Domain.Entities
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string ImageUrl { get; set; }
-        public string sku { get; set; }
+        public string Sku { get; set; }
 
         // Koppeling met de categorie.
         public int CategoryId { get; set; }
