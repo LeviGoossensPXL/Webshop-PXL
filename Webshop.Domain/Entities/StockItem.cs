@@ -8,9 +8,12 @@ namespace Webshop.Domain.Entities
 {
     public class StockItem
     {
-        int StockItemId { get; set; }
-        string sku { get; set; }
-        int Quantity { get; set; }
-        string WarehouseLocation { get; set; }
+        public int StockItemId { get; set; }
+        public string sku { get; set; }
+       public  int Quantity { get; set; }
+       public  string WarehouseLocation { get; set; }
+
+       public int ProductId { get; set; }
+        public Product Product { get; set; }
     }
 }

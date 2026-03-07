@@ -34,6 +34,9 @@ namespace Webshop.Infrastructure.Data
 
         //// TODO: dit is optioneel, afhankelijk van hoe We de adressen willen beheren. we kunnen ook overwegen om adressen direct in de Order-tabel op te slaan als JSON of als losse kolommen.
         public DbSet<Address> Addresses { get; set; }
+
+        // tabel voor stock items
+        public DbSet<StockItem> StockItems { get; set; }
     }
 
 }
