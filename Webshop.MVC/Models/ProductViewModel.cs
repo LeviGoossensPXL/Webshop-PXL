@@ -10,10 +10,10 @@ namespace Webshop.MVC.Models
         
         public string Name { get; set; } = string.Empty;
 
-       
-        public string PriceDisplay { get; set; } = string.Empty;
+        public decimal Price { get; set; } 
+        public string Description { get; set; } = string.Empty;
+        public string Sku { get; set; } = string.Empty;
 
-       
         public string CategoryName { get; set; } = string.Empty;
 
         // Voor de afbeeldingen die we later gaan uploaden.
