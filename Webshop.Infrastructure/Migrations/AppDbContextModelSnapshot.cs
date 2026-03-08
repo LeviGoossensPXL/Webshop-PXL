@@ -184,7 +184,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasKey("AddressId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.AppUser", b =>
@@ -269,7 +269,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.Order", b =>
@@ -297,7 +297,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("DeliveryAddressAddressId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.OrderLine", b =>
@@ -326,7 +326,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderLines");
+                    b.ToTable("OrderLines", (string)null);
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.Product", b =>
@@ -363,7 +363,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.StockItem", b =>
@@ -392,7 +392,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("StockItems");
+                    b.ToTable("StockItems", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
