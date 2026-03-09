@@ -2,7 +2,7 @@
 
 namespace Webshop.MVC.Models
 {
-    // Dit model is volledig compatibel met de Product entiteit.
+    // This model is fully compatible with the Product entity.
     public class ProductViewModel
     {
         public int Id { get; set; }
@@ -16,7 +16,7 @@ namespace Webshop.MVC.Models
 
         public string CategoryName { get; set; } = string.Empty;
 
-        // Voor de afbeeldingen die we later gaan uploaden.
+        // For the images we will upload later.
         public string ImageUrl { get; set; } = "/images/default.jpg";
     }
 }

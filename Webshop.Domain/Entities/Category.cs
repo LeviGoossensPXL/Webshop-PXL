@@ -7,7 +7,7 @@ namespace Webshop.Domain.Entities
     {
         public int CategoryId { get; set; }
         public string Name { get; set; }
-        // Lijst met producten in deze categorie.
+        // List of products in this category.
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public string Description { get; set; }
     }

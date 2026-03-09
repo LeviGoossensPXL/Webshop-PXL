@@ -5,33 +5,33 @@ namespace Webshop.MVC.Models
 {
     public class ProductUpdateViewModel
     {
-        // Het ID van het product dat we bewerken
+        // The ID of the product we are editing
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Naam is verplicht.")]
+        [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Beschrijving is verplicht.")]
+        [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "Prijs is verplicht.")]
-        [Range(0.01, 10000, ErrorMessage = "De prijs moet groter zijn dan 0.")]
+        [Required(ErrorMessage = "Price is required.")]
+        [Range(0.01, 10000, ErrorMessage = "The price must be greater than 0.")]
         public decimal Price { get; set; }
 
-        [Required(ErrorMessage = "SKU is verplicht.")]
+        [Required(ErrorMessage = "SKU is required.")]
         public string Sku { get; set; }
 
-        // Huidige afbeelding URL (om te laten zien wat er nu is)
+        // Current image URL (to show what is there now)
         public string? CurrentImageUrl { get; set; }
 
-        // Nieuwe afbeelding uploaden (optioneel)
+        // Upload new image (optional)
         public IFormFile? NewImage { get; set; }
 
-        // Geselecteerde categorie ID (Foreign Key)
-        [Required(ErrorMessage = "Selecteer een categorie.")]
+        // Selected category ID (Foreign Key)
+        [Required(ErrorMessage = "Please select a category.")]
         public int CategoryId { get; set; }
 
-        // Lijst voor de dropdown (wordt gevuld in de controller)
+        // List for the dropdown (filled in the controller)
         public IEnumerable<SelectListItem>? Categories { get; set; }
     }
 }

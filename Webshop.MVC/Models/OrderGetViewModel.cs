@@ -10,17 +10,17 @@ namespace Webshop.MVC.Models
        
         public DateTime OrderDate { get; set; }
 
-       
-        // In de database is dit een int, maar hier tonen we tekst.
+
+        // In the database, this is an int, but here we display text.
         public string Status { get; set; } = string.Empty;
 
-        // Het totaal aantal items in de bestelling (berekend uit OrderLines)
+        // The total number of items in the order (calculated from OrderLines)
         public int TotalItems { get; set; }
 
-        // De totale prijs van de bestelling (berekend: Quantity * UnitPrice)
+        // The total price of the order (calculated: Quantity * UnitPrice)
         public decimal TotalPrice { get; set; }
 
-        // Het geformatteerde afleveradres (Straat + Stad + Postcode samen)
+        // The formatted delivery address (Street + Town + Postcode together)
         public string FullAddress { get; set; } = string.Empty;
     }
 }
