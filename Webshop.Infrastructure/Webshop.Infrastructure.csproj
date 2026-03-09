@@ -17,4 +17,7 @@
     <ProjectReference Include="..\Webshop.Domain\Webshop.Domain.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 </Project>

@@ -9,6 +9,6 @@ namespace Webshop.Application.Results
 {
     public class IdentityRegisterResult : BaseResult
     {
-        IdentityResult IdentityResult { get; set; }
+        public IdentityResult IdentityResult { get; set; }
     }
 }
