@@ -8,37 +8,63 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 │   ├── Webshop.Application ------------------ (Application Layer (Interfaces))
 │   │   ├── Repositories
 │   │   │   └── interface IProductRepository
+│   │   │       ├── method GetAll
+│   │   │       ├── method GetById
+│   │   │       ├── method Add
+│   │   │       ├── method Update
+│   │   │       └── method Delete
 │   │   └── Services
-│   │       └── interface IProductService
-│   │ 
+│   │       ├── interface IProductService
+│   │       └── class ProductService : IProductService (uses ProductRepository)
+│   │
+│   │
 │   ├── Webshop.Domain ----------------------- (Domain Layer (No dependencies))
 │   │   └── Entities ------------------------- (Database Entities)
 │   │       └── class Product
+│   │
 │   │
 │   ├── Webshop.Infrastructure --------------- (Infrastructure Layer (EF Core Implementation))
 │   │   ├── Data
 │   │   │   └── class AppDbContext
 │   │   ├── Repositories
-│   │   │   └── class ProductRepository
-│   │   ├── Services
-│   │   │   └── class ProductService
-│   │   └── Migrations  
+│   │   │   └── class ProductRepository : IProductRepository (uses AppDbContext)
+│   │   │       ├── method GetAll
+│   │   │       ├── method GetById
+│   │   │       ├── method Add
+│   │   │       ├── method Update
+│   │   │       └── method Delete
+│   │   └── Migrations
+│   │
 │   │
 │   ├── Webshop.MVC -------------------------- (Website Layer)
 │   │   ├── Controllers
 │   │   │   ├── class HomeController
-│   │   │   └── class ProductController
+│   │   │   └── class ProductController (uses ProductService)
+│   │   │       ├── method List
+│   │   │       ├── method Details
+│   │   │       ├── method Create
+│   │   │       ├── method Update
+│   │   │       └── method Delete
 │   │   ├── Models --------------------------- (ViewModels)
-│   │   │   └── class ProductViewModel
+│   │   │   ├── class ProductListViewModel
+│   │   │   ├── class ProductDetailsViewModel
+│   │   │   ├── class ProductCreateViewModel
+│   │   │   ├── class ProductUpdateViewModel
+│   │   │   └── class ProductDeleteViewModel
 │   │   └── Views ---------------------------- (All Webpages)
 │   │       ├── Home
 │   │       │   ├── Index.cshtml
 │   │       │   └── Privacy.cshtml
-│   │       ├── Product
-│   │       │   ├── Index.cshtml
-│   │       │   └── Create.cshtml
+│   │       ├── Product ---------------------- (Product Webpages)
+│   │       │   ├── List.cshtml
+│   │       │   ├── Details.cshtml
+│   │       │   ├── Create.cshtml
+│   │       │   ├── Update.cshtml
+│   │       │   └── Delete.cshtml
 │   │       ├── _ViewImports.cshtml
 │   │       └── _ViewStart.cshtml
+│   │
+│   │
 │   ├── appsettings.json (settings for the app)
 │   └── class Program (main program)
 ├── docker-compose.yml (all containers for this C# project)
