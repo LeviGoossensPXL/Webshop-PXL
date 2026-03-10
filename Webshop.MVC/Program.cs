@@ -23,6 +23,7 @@ builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
