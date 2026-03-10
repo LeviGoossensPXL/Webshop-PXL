@@ -15,7 +15,7 @@ namespace Webshop.Domain.Entities
         public Address DeliveryAddress { get; set; }
 
         // Order status (e.g., 1 = Pending, 2 = Shipped)
-        public int Status { get; set; }
+        public OrderStatus Status { get; set; } = OrderStatus.Pending; // Default status upon creation
 
 
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;

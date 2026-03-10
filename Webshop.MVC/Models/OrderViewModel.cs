@@ -7,7 +7,7 @@ namespace Webshop.MVC.Models
     {
         public int OrderId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
-        // De status als tekst (bijv. "In behandeling").
+        // The status as text (e.g. "Pending").
         public string StatusDescription { get; set; } = string.Empty;
 
         public Address DeliveryAddress { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Webshop.Domain.Entities
 {
-    // Deze klasse bevat de details van elk specifiek product in een bestelling.
+    // This class contains the details of each specific product in an order.
     public class OrderLine
     {
         public int OrderLineId { get; set; }
@@ -15,7 +15,7 @@ namespace Webshop.Domain.Entities
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
-        // Het aantal stuks dat de klant bestelt.
+        // The number of items ordered by the customer.
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
     }
