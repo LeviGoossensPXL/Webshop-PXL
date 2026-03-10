@@ -118,10 +118,57 @@ the code in visual studio will connect to the postgress database in docker. And 
 - username: `postgres`
 - password: `postgres`
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# Flow
+1. below is the general flow of the program, in this example: a user visits the product list page.
+```
+Browser
+   │
+   ▼
+==== Webshop.website container =====
+ASP.NET Routing
+   │
+   ▼
+ProductController (Website Layer)
+   │
+   ▼
+ProductService (Application Layer)
+   │
+   ▼
+ProductRepository (Infrastructure Layer)
+   │
+   ▼
+AppDbContext (Infrastructure Layer)
+====================================
+   │
+   ▼
+==== Webshop.database container ====
+Database (postgres SQL)
+====================================
+```
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Then back:
+```
+==== Webshop.database container ====
+Database (postgres SQL)
+====================================
+   │
+   ▼
+==== Webshop.website container =====
+AppDbContext (Infrastructure Layer)
+   │
+   ▼
+ProductRepository (Infrastructure Layer)
+   │
+   ▼
+ProductService (Application Layer)
+   │
+   ▼
+ProductController (Website Layer)
+   │
+   ▼
+Product/List.cshtml + ProductListViewModel (Website Layer)
+====================================
+   │
+   ▼
+Browser (HTML)
+```
