@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Webshop.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Webshop.Infrastructure.Data;
 namespace Webshop.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307234858_RenameSkuToPascalCase")]
+    partial class RenameSkuToPascalCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,7 +187,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasKey("AddressId");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.AppUser", b =>
@@ -269,7 +272,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.Order", b =>
@@ -297,7 +300,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("DeliveryAddressAddressId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.OrderLine", b =>
@@ -326,7 +329,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderLines", (string)null);
+                    b.ToTable("OrderLines");
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.Product", b =>
@@ -363,7 +366,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Webshop.Domain.Entities.StockItem", b =>
@@ -392,7 +395,7 @@ namespace Webshop.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("StockItems", (string)null);
+                    b.ToTable("StockItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

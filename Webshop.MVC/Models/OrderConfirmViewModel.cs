@@ -2,7 +2,7 @@
 
 namespace Webshop.MVC.Models
 {
-    // Dit model toont de samenvatting van een bestelling aan de klant.
+    // This model displays the summary of an order to the customer.
     public class OrderConfirmViewModel
     {
         public int OrderId { get; set; }
