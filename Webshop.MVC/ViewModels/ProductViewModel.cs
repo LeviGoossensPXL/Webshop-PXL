@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Webshop.MVC.Models
+namespace Webshop.MVC.ViewModels
 {
     // This model is fully compatible with the Product entity.
     public class ProductViewModel

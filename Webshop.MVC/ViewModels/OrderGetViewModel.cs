@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Webshop.MVC.Models
+namespace Webshop.MVC.ViewModels
 {
     public class OrderGetViewModel
     {

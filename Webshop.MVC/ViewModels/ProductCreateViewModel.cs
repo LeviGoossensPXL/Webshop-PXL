@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Webshop.Domain.Entities;
 
-namespace Webshop.MVC.Models
+namespace Webshop.MVC.ViewModels
 {
     public class ProductCreateViewModel
     {

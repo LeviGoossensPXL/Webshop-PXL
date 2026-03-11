@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Webshop.MVC.Models
+namespace Webshop.MVC.ViewModels
 {
     // This model displays the summary of an order to the customer.
     public class OrderConfirmViewModel
