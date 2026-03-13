@@ -23,8 +23,27 @@ builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
+
+// ==========================================================
+using (var scope = app.Services.CreateScope())
+{
+    var categoryRepo = scope.ServiceProvider.GetRequiredService<Webshop.Application.Repositories.ICategoryRepository>();
+
+    var existingCategories = await categoryRepo.GetAll();
+
+    if (!existingCategories.Any())
+    {
+        await categoryRepo.Add(new Webshop.Domain.Entities.Category
+        {
+            Name = "General Camping Gear",
+            Description = "Default category for testing"
+        });
+    }
+}
+// ==========================================================
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -44,6 +63,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Product}/{action=Index}/{id?}");
 
 app.Run();

@@ -20,9 +20,20 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task Delete(int id)
         {
-            var product = new Product { ProductId = id };
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            // Check if the entity is already being tracked in the local memory
+            var existingProduct = _context.Products.Local.FirstOrDefault(p => p.ProductId == id);
+
+            // If not in memory, fetch it from the database
+            if (existingProduct == null)
+            {
+                existingProduct = await _context.Products.FindAsync(id);
+            }
+
+            if (existingProduct != null)
+            {
+                _context.Products.Remove(existingProduct);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAll()
@@ -32,7 +43,11 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task<Product?> GetById(int id)
         {
-            return await _context.Products.FindAsync(id);
+            // Include the Category navigation property to load the related category data
+            // otherwise,the Category property will be null when accessed outside of this method
+            return await _context.Products
+                         .Include(p => p.Category)
+                         .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
         public async Task Update(Product product)

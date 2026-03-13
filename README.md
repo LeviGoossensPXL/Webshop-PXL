@@ -8,37 +8,63 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 │   ├── Webshop.Application ------------------ (Application Layer (Interfaces))
 │   │   ├── Repositories
 │   │   │   └── interface IProductRepository
+│   │   │       ├── method GetAll
+│   │   │       ├── method GetById
+│   │   │       ├── method Add
+│   │   │       ├── method Update
+│   │   │       └── method Delete
 │   │   └── Services
-│   │       └── interface IProductService
-│   │ 
+│   │       ├── interface IProductService
+│   │       └── class ProductService : IProductService (uses ProductRepository)
+│   │
+│   │
 │   ├── Webshop.Domain ----------------------- (Domain Layer (No dependencies))
 │   │   └── Entities ------------------------- (Database Entities)
 │   │       └── class Product
+│   │
 │   │
 │   ├── Webshop.Infrastructure --------------- (Infrastructure Layer (EF Core Implementation))
 │   │   ├── Data
 │   │   │   └── class AppDbContext
 │   │   ├── Repositories
-│   │   │   └── class ProductRepository
-│   │   ├── Services
-│   │   │   └── class ProductService
-│   │   └── Migrations  
+│   │   │   └── class ProductRepository : IProductRepository (uses AppDbContext)
+│   │   │       ├── method GetAll
+│   │   │       ├── method GetById
+│   │   │       ├── method Add
+│   │   │       ├── method Update
+│   │   │       └── method Delete
+│   │   └── Migrations
+│   │
 │   │
 │   ├── Webshop.MVC -------------------------- (Website Layer)
 │   │   ├── Controllers
 │   │   │   ├── class HomeController
-│   │   │   └── class ProductController
-│   │   ├── Models --------------------------- (ViewModels)
-│   │   │   └── class ProductViewModel
+│   │   │   └── class ProductController (uses ProductService)
+│   │   │       ├── method List
+│   │   │       ├── method Details
+│   │   │       ├── method Create
+│   │   │       ├── method Update
+│   │   │       └── method Delete
+│   │   ├── ViewModels --------------------------- (ViewModels)
+│   │   │   ├── class ProductListViewModel
+│   │   │   ├── class ProductDetailsViewModel
+│   │   │   ├── class ProductCreateViewModel
+│   │   │   ├── class ProductUpdateViewModel
+│   │   │   └── class ProductDeleteViewModel
 │   │   └── Views ---------------------------- (All Webpages)
 │   │       ├── Home
 │   │       │   ├── Index.cshtml
 │   │       │   └── Privacy.cshtml
-│   │       ├── Product
-│   │       │   ├── Index.cshtml
-│   │       │   └── Create.cshtml
+│   │       ├── Product ---------------------- (Product Webpages)
+│   │       │   ├── List.cshtml
+│   │       │   ├── Details.cshtml
+│   │       │   ├── Create.cshtml
+│   │       │   ├── Update.cshtml
+│   │       │   └── Delete.cshtml
 │   │       ├── _ViewImports.cshtml
 │   │       └── _ViewStart.cshtml
+│   │
+│   │
 │   ├── appsettings.json (settings for the app)
 │   └── class Program (main program)
 ├── docker-compose.yml (all containers for this C# project)
@@ -56,13 +82,17 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        17/02/2026     16:03                Tests
-d-----        17/02/2026     16:03                Webshop.Domain
-d-----        17/02/2026     19:27                Webshop.Infrastructure
-d-----        17/02/2026     19:30                Webshop.MVC
--a----        10/02/2026     11:45           6578 .gitignore
--a----        17/02/2026     19:55           1003 docker-compose.yml
--a----        17/02/2026     18:29            888 Dockerfile
+d-----         3/13/2026   8:57 PM                Docs
+d-----         2/24/2026  11:39 AM                Tests
+d-----          3/7/2026   3:48 PM                Webshop.Application
+d-----         3/10/2026   9:44 AM                Webshop.Domain
+d-----         3/10/2026   9:44 AM                Webshop.Infrastructure
+d-----         3/13/2026   8:30 PM                Webshop.MVC
+-a----         3/13/2026   8:30 PM           6578 .gitignore
+-a----         2/24/2026  11:39 AM           1003 docker-compose.yml
+-a----         2/24/2026  11:39 AM            888 Dockerfile
+-a----         3/13/2026   8:49 PM           6367 README.md
+-a----         2/24/2026  11:39 AM           3134 Webshop.sln
 ```
 4. start docker services with following command:
 ```ps1
@@ -92,10 +122,60 @@ the code in visual studio will connect to the postgress database in docker. And 
 - username: `postgres`
 - password: `postgres`
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# Flow
+1. below is the general flow of the program, in this example: a user visits the product list page.
+```
+Browser
+   │
+   ▼
+==== Webshop.website container =====
+ASP.NET Routing
+   │
+   ▼
+ProductController (Website Layer)
+   │
+   ▼
+ProductService (Application Layer)
+   │
+   ▼
+ProductRepository (Infrastructure Layer)
+   │
+   ▼
+AppDbContext (Infrastructure Layer)
+====================================
+   │
+   ▼
+==== Webshop.database container ====
+Database (postgres SQL)
+====================================
+```
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Then back:
+```
+==== Webshop.database container ====
+Database (postgres SQL)
+====================================
+   │
+   ▼
+==== Webshop.website container =====
+AppDbContext (Infrastructure Layer)
+   │
+   ▼
+ProductRepository (Infrastructure Layer)
+   │
+   ▼
+ProductService (Application Layer)
+   │
+   ▼
+ProductController (Website Layer)
+   │
+   ▼
+Product/List.cshtml + ProductListViewModel (Website Layer)
+====================================
+   │
+   ▼
+Browser (HTML)
+```
+
+# Workflow
+is here: [workflow](./Docs/Workflow.md)
