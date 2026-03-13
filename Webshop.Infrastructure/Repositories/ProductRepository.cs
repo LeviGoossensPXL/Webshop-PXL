@@ -20,9 +20,20 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task Delete(int id)
         {
-            var product = new Product { ProductId = id };
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            // Check if the entity is already being tracked in the local memory
+            var existingProduct = _context.Products.Local.FirstOrDefault(p => p.ProductId == id);
+
+            // If not in memory, fetch it from the database
+            if (existingProduct == null)
+            {
+                existingProduct = await _context.Products.FindAsync(id);
+            }
+
+            if (existingProduct != null)
+            {
+                _context.Products.Remove(existingProduct);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAll()

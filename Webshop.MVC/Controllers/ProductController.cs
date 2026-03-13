@@ -208,8 +208,27 @@ namespace Webshop.MVC.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _productRepository.Delete(id);
-            return RedirectToAction("Index");
+            var product = await _productRepository.GetById(id);
+
+            if (product != null)
+            {
+                // 1. Physical file cleanup (Don't delete the default image!)
+                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "/images/default.jpg")
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.ImageUrl.TrimStart('/'));
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                // 2. Database cleanup
+                await _productRepository.Delete(id);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
     }
 }
