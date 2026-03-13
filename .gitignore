@@ -362,5 +362,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Ignore product images but keep the default one
-wwwroot/images/*
-!wwwroot/images/default.jpg
+Webshop.MVC/wwwroot/images/*
+!Webshop.MVC/wwwroot/images/default.jpg
