@@ -11,5 +11,10 @@ namespace Webshop.Application.Repositories
     {
         Task<IEnumerable<Category>> GetAll();
         Task<Category?> GetById(int id);
+
+        // new methods for adding, updating, and deleting categories
+        Task Add(Category category); 
+        Task Update(Category category); 
+        Task Delete(int id); 
     }
 }

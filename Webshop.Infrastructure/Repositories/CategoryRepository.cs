@@ -24,6 +24,29 @@ namespace Webshop.Infrastructure.Repositories
         {
             return await _context.Categories.FindAsync(id);
         }
+
+        // new methods for adding, updating, and deleting categories
+        public async Task Add(Category category)
+        {
+            await _context.Categories.AddAsync(category);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Update(Category category)
+        {
+            _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(int id)
+        {
+            var category = await GetById(id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
 
