@@ -2,9 +2,11 @@
 guide and rules on how we work together on this codebase.
 
 ## rules (try to follow as best as possible)
+these rules can apply to the developer and/or the reviewer of the code.
+
 1. always push your changes.
 	- Commit regularly and push your work to the remote repository.
-2. make a new branch on azure devops for your issue.
+2. make a new branch on azure devops for your issue. (this is more clear in azure devops)
 	- When starting work on an issue, create a dedicated branch for it.
 	- example: `38-create-web-api`
 	- See the screenshots below for where to create the branch.
@@ -15,6 +17,6 @@ guide and rules on how we work together on this codebase.
 5. Request a review before merging
 	- At least one team member should review the PR.
 	- Address any feedback before merging. with a comment or a code fix.
-6. Make sure the project still builds/runs
+6. Make sure the project still builds/runs {reviewer/developer}
 	- Test your changes locally before pushing.
-	- Ensure no existing functionality is broken.
+	- try to check existing functionality is not broken.
