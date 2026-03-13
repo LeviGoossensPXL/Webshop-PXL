@@ -45,7 +45,7 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 │   │   │       ├── method Create
 │   │   │       ├── method Update
 │   │   │       └── method Delete
-│   │   ├── Models --------------------------- (ViewModels)
+│   │   ├── ViewModels --------------------------- (ViewModels)
 │   │   │   ├── class ProductListViewModel
 │   │   │   ├── class ProductDetailsViewModel
 │   │   │   ├── class ProductCreateViewModel
@@ -82,13 +82,17 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        17/02/2026     16:03                Tests
-d-----        17/02/2026     16:03                Webshop.Domain
-d-----        17/02/2026     19:27                Webshop.Infrastructure
-d-----        17/02/2026     19:30                Webshop.MVC
--a----        10/02/2026     11:45           6578 .gitignore
--a----        17/02/2026     19:55           1003 docker-compose.yml
--a----        17/02/2026     18:29            888 Dockerfile
+d-----         3/13/2026   8:57 PM                Docs
+d-----         2/24/2026  11:39 AM                Tests
+d-----          3/7/2026   3:48 PM                Webshop.Application
+d-----         3/10/2026   9:44 AM                Webshop.Domain
+d-----         3/10/2026   9:44 AM                Webshop.Infrastructure
+d-----         3/13/2026   8:30 PM                Webshop.MVC
+-a----         3/13/2026   8:30 PM           6578 .gitignore
+-a----         2/24/2026  11:39 AM           1003 docker-compose.yml
+-a----         2/24/2026  11:39 AM            888 Dockerfile
+-a----         3/13/2026   8:49 PM           6367 README.md
+-a----         2/24/2026  11:39 AM           3134 Webshop.sln
 ```
 4. start docker services with following command:
 ```ps1
@@ -172,3 +176,6 @@ Product/List.cshtml + ProductListViewModel (Website Layer)
    ▼
 Browser (HTML)
 ```
+
+# Workflow
+is here: [workflow](./Docs/Workflow.md)
