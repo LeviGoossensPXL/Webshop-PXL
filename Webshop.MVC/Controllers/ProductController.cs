@@ -89,7 +89,10 @@ namespace Webshop.MVC.Controllers
                     Price = model.Price,
                     Sku = model.Sku,
                     CategoryId = model.CategoryId,
-                    ImageUrl = model.ImageUrl ?? "/images/default.jpg"
+                    // If ImageUrl is empty or consists only of spaces, print the default image
+                    ImageUrl = string.IsNullOrWhiteSpace(model.ImageUrl)
+                            ? "/images/default.jpg"
+                            : model.ImageUrl
                 };
 
                 await _productRepository.Add(product);
@@ -136,22 +139,44 @@ namespace Webshop.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                
+                string imageUrl = model.CurrentImageUrl ?? "/images/default.jpg";
+
+               
+                if (model.NewImage != null && model.NewImage.Length > 0)
+                {
+                    
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.NewImage.FileName);
+
+                    // Define the path to save the file in wwwroot/images
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+
+                    
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.NewImage.CopyToAsync(stream);
+                    }
+
+                    
+                    imageUrl = "/images/" + fileName;
+                }
+
                 var product = new Product
                 {
-                    ProductId = model.Id, 
+                    ProductId = model.Id,
                     Name = model.Name,
                     Description = model.Description,
                     Price = model.Price,
                     Sku = model.Sku,
                     CategoryId = model.CategoryId,
-                    ImageUrl = model.CurrentImageUrl ?? "/images/default.jpg"
+                    ImageUrl = imageUrl // Use either the old one or the newly uploaded one
                 };
 
                 await _productRepository.Update(product);
                 return RedirectToAction("Index");
             }
 
-            // If error, reload categories
+            // If error, reload categories for the dropdown
             var categories = await _categoryRepository.GetAll();
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name");
             return View(model);
