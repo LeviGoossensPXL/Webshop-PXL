@@ -32,7 +32,11 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task<Product?> GetById(int id)
         {
-            return await _context.Products.FindAsync(id);
+            // Include the Category navigation property to load the related category data
+            // otherwise,the Category property will be null when accessed outside of this method
+            return await _context.Products
+                         .Include(p => p.Category)
+                         .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
         public async Task Update(Product product)
