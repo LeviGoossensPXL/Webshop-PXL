@@ -34,8 +34,28 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  
+  webApi.database:
+    image: postgres:18
+    container_name: webApi.database
+    environment:
+      - POSTGRES_DB=webApi
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - webshop-network
+    volumes:
+      - "webapi-db:/var/lib/postgresql"
+    ports:
+      - "5931:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   webshop-db:
+  webapi-db:
 networks:
   webshop-network:
