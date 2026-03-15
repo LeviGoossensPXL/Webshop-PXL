@@ -31,7 +31,26 @@ namespace Webshop.MVC.Controllers
 
             return View(viewModelList);
         }
-        // list actie
+        //GET: Order/Details/5 (Details - GetOne)
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var order = await _orderRepository.GetById(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new OrderDetailViewModel
+            {
+                OrderId = order.OrderId,
+                UserId = order.UserId,
+                OrderDate = order.OrderDate,
+                Status = order.Status.ToString(),
+            };
+
+            return View(viewModel);
+        }
 
         // create actie
 
