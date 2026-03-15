@@ -48,6 +48,12 @@ namespace Webshop.MVC.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
+                TotalItems = order.OrderLines?.Sum(ol => ol.Quantity) ?? 0,
+                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
+                // Format the delivery address safely
+                FullAddress = order.DeliveryAddress != null
+                    ? $"{order.DeliveryAddress.Street}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}"
+                    : "No address provided"
             };
 
             return View(viewModel);
@@ -136,7 +142,12 @@ namespace Webshop.MVC.Controllers
                 OrderId = order.OrderId,
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
-                Status = order.Status.ToString() // Converted to string for the ViewModel
+                Status = order.Status.ToString(),
+                TotalItems = order.OrderLines?.Sum(ol => ol.Quantity) ?? 0,
+                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
+                FullAddress = order.DeliveryAddress != null
+                    ? $"{order.DeliveryAddress.Street}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}"
+                    : "No address provided"
             };
 
             return View(viewModel);
