@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Webshop.Application.Repositories;
 using Webshop.Domain.Entities;
 using Webshop.MVC.ViewModels;
@@ -72,11 +73,21 @@ namespace Webshop.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "placeholder-user-id";
                 // Map ViewModel to Domain Entity
                 var order = new Order
                 {
+                    UserId = userId,
                     OrderDate = System.DateTime.UtcNow,
-                    Status = OrderStatus.Pending // Use the enum instead of an integer
+                    Status = OrderStatus.Pending,
+                    DeliveryAddress = new Address
+                    {
+                        Street = model.Street,
+                        HouseNumber = model.HouseNumber,
+                        City = model.City,
+                        ZipCode = model.PostalCode,
+                        Country = model.Country
+                    }
                 };
 
                 await _orderRepository.Add(order);
