@@ -10,6 +10,7 @@ namespace Webshop.MVC.Controllers
     {
         private readonly IOrderRepository _orderRepository;
 
+
         public OrderController(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
@@ -27,7 +28,6 @@ namespace Webshop.MVC.Controllers
                 UserId = o.UserId,
                 OrderDate = o.OrderDate,
                 Status = o.Status.ToString(),
-                NumberOfItems = o.OrderLines?.Count ?? 0,
                 TotalAmount = o.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0
             }).ToList();
 
@@ -49,11 +49,10 @@ namespace Webshop.MVC.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
-                TotalItems = order.OrderLines?.Sum(ol => ol.Quantity) ?? 0,
                 TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
                 // Format the delivery address safely
                 FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}"
+                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
                     : "No address provided"
             };
 
@@ -78,7 +77,7 @@ namespace Webshop.MVC.Controllers
                 var order = new Order
                 {
                     UserId = userId,
-                    OrderDate = System.DateTime.UtcNow,
+                    OrderDate = DateTime.Now,
                     Status = OrderStatus.Pending,
                     DeliveryAddress = new Address
                     {
@@ -154,10 +153,9 @@ namespace Webshop.MVC.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
-                TotalItems = order.OrderLines?.Sum(ol => ol.Quantity) ?? 0,
                 TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
                 FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}"
+                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
                     : "No address provided"
             };
 
