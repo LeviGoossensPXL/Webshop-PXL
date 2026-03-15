@@ -80,8 +80,47 @@ namespace Webshop.MVC.Controllers
             // If there is a validation error, show the form again
             return View(model);
         }
-        // update actie
+        // GET: Order/Edit/5 (edit form to open)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var order = await _orderRepository.GetById(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Map Domain Entity to Update ViewModel
+            var model = new OrderUpdateViewModel
+            {
+                OrderId = order.OrderId,
+                Status = (int)order.Status
+            };
+
+            return View(model);
+        }
+
+        // POST: Order/Edit/5 (Save edit)
+        [HttpPost]
+        public async Task<IActionResult> Edit(OrderUpdateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var order = await _orderRepository.GetById(model.OrderId);
+                if (order != null)
+                {
+                    order.Status = (OrderStatus)model.Status;
+                    await _orderRepository.Update(order);
+                }
+
+                return RedirectToAction("Index");
+            }
+
+            // If error, show the form again
+            return View(model);
+        }
 
         // delete actie
+
     }
 }
