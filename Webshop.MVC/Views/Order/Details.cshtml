@@ -1,0 +1,42 @@
+﻿@model Webshop.MVC.ViewModels.OrderDetailViewModel
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container mt-5">
+    <div class="row bg-light p-4 rounded shadow-sm">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">Orders</a></li>
+                    <li class="breadcrumb-item active">Order #@Model.OrderId</li>
+                </ol>
+            </nav>
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-5 fw-bold">Order #@Model.OrderId</h1>
+                <span class="badge bg-secondary fs-5">@Model.Status</span>
+            </div>
+            <p class="text-muted">Date: <span class="fw-bold">@Model.OrderDate.ToString("dd MMM yyyy, HH:mm")</span></p>
+            <h3 class="text-success mb-4">Total: € @Model.TotalPrice.ToString("F2")</h3>
+            <hr>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>Customer Information</h5>
+                    <p class="lead mb-1"><strong>User ID:</strong> @Model.UserId</p>
+                    <p class="lead"><strong>Total Items:</strong> @Model.TotalItems</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Delivery Address</h5>
+                    <p class="lead">@Model.FullAddress</p>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-warning px-4">Edit Order</a>
+                <a asp-action="Index" class="btn btn-secondary px-4">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
