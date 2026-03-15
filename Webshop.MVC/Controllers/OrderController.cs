@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Webshop.Application.Repositories;
+using Webshop.Domain.Entities;
 using Webshop.MVC.ViewModels;
 
 namespace Webshop.MVC.Controllers
@@ -52,8 +53,33 @@ namespace Webshop.MVC.Controllers
             return View(viewModel);
         }
 
-        // create actie
+        // GET: Order/Create (create form to open )
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
 
+        // POST: Order/Create (for the form save )
+        [HttpPost]
+        public async Task<IActionResult> Create(OrderCreateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Map ViewModel to Domain Entity
+                var order = new Order
+                {
+                    OrderDate = System.DateTime.UtcNow,
+                    Status = OrderStatus.Pending // Use the enum instead of an integer
+                };
+
+                await _orderRepository.Add(order);
+                return RedirectToAction("Index"); // Return to list after saving
+            }
+
+            // If there is a validation error, show the form again
+            return View(model);
+        }
         // update actie
 
         // delete actie
