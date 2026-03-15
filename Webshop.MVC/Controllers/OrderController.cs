@@ -120,7 +120,42 @@ namespace Webshop.MVC.Controllers
             return View(model);
         }
 
-        // delete actie
+        // GET: Order/Delete/5 (delete confirm page)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var order = await _orderRepository.GetById(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // We show the details to ask "Are you sure?"
+            var viewModel = new OrderDetailViewModel
+            {
+                OrderId = order.OrderId,
+                UserId = order.UserId,
+                OrderDate = order.OrderDate,
+                Status = order.Status.ToString() // Converted to string for the ViewModel
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Order/Delete/5 
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var order = await _orderRepository.GetById(id);
+
+            if (order != null)
+            {
+                // Database cleanup
+                await _orderRepository.Delete(id);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
     }
 }
