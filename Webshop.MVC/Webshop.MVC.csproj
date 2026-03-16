@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Webshop.Infrastructure\Webshop.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
 </Project>
