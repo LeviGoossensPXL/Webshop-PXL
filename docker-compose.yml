@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5331;Database=webshop;Username=postgres;Password=postgres
+      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
