@@ -20,10 +20,16 @@ namespace Webshop.MVC.Controllers
 
         // GET: Product (GetAll)
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? categoryId)
         {
             var products = await _productRepository.GetAll();
-            
+            var categories = await _categoryRepository.GetAll();
+
+            if(categoryId.HasValue && categoryId >0)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
+             
             // Map Domain Entities to ViewModels
             var viewModelList = products.Select(p => new ProductListViewModel
             {
@@ -32,10 +38,12 @@ namespace Webshop.MVC.Controllers
                 Description = p.Description,
                 Price = p.Price,
                 // If Category is not null, get its Name
-                CategoryName=p.Category?.Name,
+                CategoryName=categories.FirstOrDefault(c =>c.CategoryId ==p.CategoryId)?.Name ?? "Unknown",
                 ImageUrl = p.ImageUrl
             }).ToList();
 
+            ViewBag.Categories = categories;
+            ViewBag.CurrrentCategory= categoryId ?? 0 ;
             return View(viewModelList);
         }
 

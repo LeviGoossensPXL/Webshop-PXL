@@ -21,12 +21,18 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task<IEnumerable<Order>> GetAll()
         {
-            return await _context.Orders.AsNoTracking().ToListAsync();
+            return await _context.Orders
+                   .Include(o => o.OrderLines)
+                   .AsNoTracking()
+                   .ToListAsync();
         }
 
         public async Task<Order?> GetById(int id)
         {
-            return await _context.Orders.FindAsync(id);
+            return await _context.Orders
+                .Include(o => o.OrderLines)
+                .Include(o => o.DeliveryAddress)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
         public async Task Add(Order order)

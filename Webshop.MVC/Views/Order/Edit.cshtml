@@ -1,0 +1,46 @@
+﻿@model Webshop.MVC.ViewModels.OrderUpdateViewModel
+@using Webshop.Domain.Entities
+
+@{
+    ViewData["Title"] = "Update Order Status";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 border p-4 bg-white shadow-sm rounded">
+            <h2 class="text-center mb-4 text-warning">Edit Order</h2>
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="OrderId" />
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="DeliveryAddress" />
+                <input type="hidden" asp-for="OrderDate" />
+
+                <div class="mb-3">
+                    <label class="form-label">Order ID</label>
+                    <input class="form-control" value="#@Model.OrderId" disabled>
+                </div>
+
+                @if (Model.OrderDate.HasValue)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Order Date</label>
+                        <input class="form-control" value="@Model.OrderDate.Value.ToString("dd MMM yyyy, HH:mm")" disabled>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Order Status</label>
+                    <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
+                        <option value="">-- Select Status --</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-warning text-white">Update Changes</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Go Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
