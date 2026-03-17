@@ -30,18 +30,7 @@ var app = builder.Build();
 // ==========================================================
 using (var scope = app.Services.CreateScope())
 {
-    var categoryRepo = scope.ServiceProvider.GetRequiredService<Webshop.Application.Repositories.ICategoryRepository>();
-
-    var existingCategories = await categoryRepo.GetAll();
-
-    if (!existingCategories.Any())
-    {
-        await categoryRepo.Add(new Webshop.Domain.Entities.Category
-        {
-            Name = "General Camping Gear",
-            Description = "Default category for testing"
-        });
-    }
+    await Webshop.MVC.Data.DbInitializer.SeedAsync(scope.ServiceProvider);
 }
 // ==========================================================
 
