@@ -178,4 +178,5 @@ Browser (HTML)
 ```
 
 # Workflow
-is here: [workflow](./Docs/Workflow.md)
+more info and a small explaination of how we work on this project: 
+[workflow](./Docs/Workflow.md)
