@@ -59,43 +59,7 @@ namespace Webshop.MVC.Controllers
             return View(viewModel);
         }
 
-        // GET: Order/Create (create form to open )
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Order/Create (for the form save )
-        [HttpPost]
-        public async Task<IActionResult> Create(OrderCreateViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "placeholder-user-id";
-                // Map ViewModel to Domain Entity
-                var order = new Order
-                {
-                    UserId = userId,
-                    OrderDate = DateTime.Now,
-                    Status = OrderStatus.Pending,
-                    DeliveryAddress = new Address
-                    {
-                        Street = model.Street,
-                        HouseNumber = model.HouseNumber,
-                        City = model.City,
-                        ZipCode = model.PostalCode,
-                        Country = model.Country
-                    }
-                };
-
-                await _orderRepository.Add(order);
-                return RedirectToAction("Index"); // Return to list after saving
-            }
-
-            // If there is a validation error, show the form again
-            return View(model);
-        }
+        
         // GET: Order/Edit/5 (edit form to open)
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
