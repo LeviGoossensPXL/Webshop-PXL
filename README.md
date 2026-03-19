@@ -176,6 +176,10 @@ Product/List.cshtml + ProductListViewModel (Website Layer)
    ▼
 Browser (HTML)
 ```
+# Troubleshooting
+more info about some common troubles with dotnet or docker and their solutions  
+and more about how to troubleshoot this project your self.
+[troublshooting](./Docs/Troubleshooting.md)
 
 # Workflow
 more info and a small explaination of how we work on this project: 
