@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model int
+
+@{
+	ViewData["Title"] = "Order Successful";
+}
+
+<div class="container mt-5 text-center">
+	<div class="py-5">
+		<h1 class="text-success display-1 mb-3"><i class="bi bi-check-circle-fill"></i></h1>
+		<h2 class="fw-bold text-dark">Thank You for Your Order!</h2>
+		<p class="lead text-muted mt-3">Your camping gear will be on its way soon.</p>
+
+		<div class="alert alert-light border d-inline-block px-5 py-3 mt-4 shadow-sm">
+			<h5>Your Order Number is: <strong class="text-success">#@Model</strong></h5>
+		</div>
+
+		<div class="mt-5">
+			<a asp-controller="Shop" asp-action="Index" class="btn btn-outline-success rounded-pill px-4">
+				<i class="bi bi-shop me-2"></i> Return to Store
+			</a>
+		</div>
+	</div>
+</div>
