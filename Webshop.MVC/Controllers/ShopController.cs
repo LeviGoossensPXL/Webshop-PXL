@@ -16,13 +16,18 @@ namespace Webshop.MVC.Controllers
             _categoryRepository = categoryRepository;
         }
 
-        // GET: Shop/Index (The customer catalogue)
+        // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? categoryId)
         {
-            // Retrieve all products (we're ignoring CRUD operations for customers)
             var products = await _productRepository.GetAll();
             var categories = await _categoryRepository.GetAll();
+
+            // Filter products if a specific category is selected
+            if (categoryId.HasValue && categoryId > 0)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
 
             var viewModelList = products.Select(p => new ProductListViewModel
             {
@@ -31,8 +36,12 @@ namespace Webshop.MVC.Controllers
                 Description = p.Description,
                 Price = p.Price,
                 ImageUrl = p.ImageUrl,
-                CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Onbekend"
+                CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
             }).ToList();
+
+            // Send data to the view for the category filter buttons
+            ViewBag.Categories = categories;
+            ViewBag.CurrentCategory = categoryId ?? 0;
 
             return View(viewModelList);
         }
