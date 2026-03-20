@@ -4,10 +4,10 @@ services:
     container_name: webshop.website
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: webapp.Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5331;Database=webshop;Username=postgres;Password=postgres
+      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
@@ -34,12 +34,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  
-  webApi.database:
-    image: postgres:18
-    container_name: webApi.database
+
+  webshop.webapi:
+    image: webapi
+    container_name: webshop.webapi
+    build:
+      context: .
+      dockerfile: webapi.Dockerfile
     environment:
-      - POSTGRES_DB=webApi
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AppConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
+    networks:
+      - webshop-network
+    ports:
+      - "8078:8080"
+    depends_on:
+      webshop.database:
+        condition: service_healthy
+  
+  webapi.database:
+    image: postgres:18
+    container_name: webapi.database
+    environment:
+      - POSTGRES_DB=webapi
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:

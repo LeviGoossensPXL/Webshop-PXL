@@ -4,6 +4,7 @@ using Webshop.Application.Repositories;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
+using Webshop.MVC.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,7 @@ var app = builder.Build();
 // ==========================================================
 using (var scope = app.Services.CreateScope())
 {
-    await Webshop.MVC.Data.DbInitializer.SeedAsync(scope.ServiceProvider);
+    await DbInitializer.SeedAsync(scope.ServiceProvider);
 }
 // ==========================================================
 

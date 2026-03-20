@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webshop.MVC", "Webshop.MVC\Webshop.MVC.csproj", "{5E257556-78B3-41A5-B78F-00B6992EE103}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webshop.website", "Webshop.website\Webshop.website.csproj", "{5E257556-78B3-41A5-B78F-00B6992EE103}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webshop.Domain", "Webshop.Domain\Webshop.Domain.csproj", "{3D11F57E-9E47-463C-9425-FE768BC15B6C}"
 EndProject
@@ -13,7 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webshop.Application", "Webshop.Application\Webshop.Application.csproj", "{B8633CCC-0F24-45C5-A3B8-3B25B63FFD2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{6251EA22-A42C-4A75-AC2D-2446F2F1407C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.webapi", "WebApi.webapi\WebApi.webapi.csproj", "{6251EA22-A42C-4A75-AC2D-2446F2F1407C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Webapp", "Webapp", "{3A6D2782-95DF-4B78-83E4-68E50BEDB5B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Webapi", "Webapi", "{22BEB729-FA24-407E-93DF-79A4FE1A6675}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,5 +55,12 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D618936-688C-48B6-84FA-A1EA49EF6C0A}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6251EA22-A42C-4A75-AC2D-2446F2F1407C} = {22BEB729-FA24-407E-93DF-79A4FE1A6675}
+		{B8633CCC-0F24-45C5-A3B8-3B25B63FFD2D} = {3A6D2782-95DF-4B78-83E4-68E50BEDB5B5}
+		{3D11F57E-9E47-463C-9425-FE768BC15B6C} = {3A6D2782-95DF-4B78-83E4-68E50BEDB5B5}
+		{A4680842-5FF9-41E6-BD53-6CA4FB1774A0} = {3A6D2782-95DF-4B78-83E4-68E50BEDB5B5}
+		{5E257556-78B3-41A5-B78F-00B6992EE103} = {3A6D2782-95DF-4B78-83E4-68E50BEDB5B5}
 	EndGlobalSection
 EndGlobal
