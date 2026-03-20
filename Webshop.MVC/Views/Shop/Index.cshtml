@@ -43,15 +43,22 @@
 						<h6 class="text-success fw-bold">€ @item.Price.ToString("F2")</h6>
 					</div>
 					<div class="card-footer bg-white border-top-0 pb-3">
-						<div class="btn-group w-100 shadow-sm" role="group">
-							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm py-2">
+						@* Gebruik d-flex in plaats van btn-group om de knop en het formulier mooi naast elkaar te zetten *@
+						<div class="d-flex gap-2 w-100">
+
+							@* View knop (Blijft een normale GET link) *@
+							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm py-2 w-50 shadow-sm">
 								<i class="bi bi-eye"></i> View
 							</a>
-							@* NO 'Edit' or 'Delete' buttons! *@
-							@* The NEW button: Add to Cart *@
-							<a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@item.Id" class="btn btn-success btn-sm py-2">
-								<i class="bi bi-cart-plus"></i> Add to Cart
-							</a>
+
+							@* Add to Cart formulier (POST request) *@
+							<form asp-controller="Cart" asp-action="AddToCart" method="post" class="w-50 m-0 p-0 shadow-sm">
+								<input type="hidden" name="productId" value="@item.Id" />
+								<button type="submit" class="btn btn-success btn-sm py-2 w-100 h-100">
+									<i class="bi bi-cart-plus"></i> Add to Cart
+								</button>
+							</form>
+
 						</div>
 					</div>
 				</div>
