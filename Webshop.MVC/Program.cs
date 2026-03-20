@@ -26,6 +26,16 @@ builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+// Session configuration
+builder.Services.AddDistributedMemoryCache(); // Vereist voor session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Winkelmandje blijft 30 min bewaard
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddHttpContextAccessor(); // Voor toegang tot HttpContext in services
+
 var app = builder.Build();
 
 // ==========================================================
@@ -47,7 +57,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession(); // MOET V””R UseAuthorization staan
 app.UseAuthentication();
 app.UseAuthorization();
 
