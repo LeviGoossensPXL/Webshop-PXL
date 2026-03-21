@@ -49,9 +49,12 @@ namespace Webshop.Infrastructure.Repositories
 
         public async Task Delete(int id)
         {
-            var order = new Order { OrderId = id };
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
