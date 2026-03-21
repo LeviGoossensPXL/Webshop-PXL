@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Webshop.MVC.ViewModels
+namespace Webshop.website.ViewModels
 {
     // This model is used to show the full details of a specific order
     public class OrderDetailViewModel

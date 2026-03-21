@@ -1,4 +1,4 @@
-namespace Webshop.MVC.ViewModels
+namespace Webshop.website.ViewModels
 {
     public class ErrorViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace Webshop.MVC.ViewModels
+namespace Webshop.website.ViewModels
 {
     public class ProductUpdateViewModel
     {

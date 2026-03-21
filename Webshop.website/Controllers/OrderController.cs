@@ -2,9 +2,9 @@
 using System.Security.Claims;
 using Webshop.Application.Repositories;
 using Webshop.Domain.Entities;
-using Webshop.MVC.ViewModels;
+using Webshop.website.ViewModels;
 
-namespace Webshop.MVC.Controllers
+namespace Webshop.website.Controllers
 {
     public class OrderController : Controller
     {

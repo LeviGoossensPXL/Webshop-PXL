@@ -1,4 +1,4 @@
-﻿namespace Webshop.MVC.ViewModels
+﻿namespace Webshop.website.ViewModels
 {
     // this model is used to show a list of campings products to the customer 
     public class ProductListViewModel
