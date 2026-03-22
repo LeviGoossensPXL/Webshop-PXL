@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
@@ -25,6 +26,9 @@ builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 // Session configuration
 builder.Services.AddDistributedMemoryCache(); // Vereist voor session

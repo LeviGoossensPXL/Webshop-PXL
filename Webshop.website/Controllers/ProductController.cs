@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 
@@ -9,12 +10,12 @@ namespace Webshop.website.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductService _productService;
         private readonly ICategoryRepository _categoryRepository;
 
-        public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ProductController(IProductService productService, ICategoryRepository categoryRepository)
         {
-            _productRepository = productRepository;
+            _productService = productService;
             _categoryRepository = categoryRepository;
         }
 
@@ -22,7 +23,7 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productRepository.GetAll();
+            var products = await _productService.GetAll();
             var categories = await _categoryRepository.GetAll();
 
             if(categoryId.HasValue && categoryId >0)
@@ -51,7 +52,7 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productService.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -103,7 +104,7 @@ namespace Webshop.website.Controllers
                             : model.ImageUrl
                 };
 
-                await _productRepository.Add(product);
+                await _productService.Add(product);
                 return RedirectToAction("Index"); // Return to list after saving
             }
 
@@ -116,7 +117,7 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productService.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -180,7 +181,7 @@ namespace Webshop.website.Controllers
                     ImageUrl = imageUrl // Use either the old one or the newly uploaded one
                 };
 
-                await _productRepository.Update(product);
+                await _productService.Update(product);
                 return RedirectToAction("Index");
             }
 
@@ -194,7 +195,7 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productService.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -216,7 +217,7 @@ namespace Webshop.website.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productService.GetById(id);
 
             if (product != null)
             {
@@ -232,7 +233,7 @@ namespace Webshop.website.Controllers
                 }
 
                 // 2. Database cleanup
-                await _productRepository.Delete(id);
+                await _productService.Delete(id);
             }
 
             return RedirectToAction(nameof(Index));
