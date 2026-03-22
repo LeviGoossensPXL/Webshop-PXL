@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Webshop.MVC.ViewModels;
+using Webshop.website.ViewModels;
 
-namespace Webshop.MVC.Controllers
+namespace Webshop.website.Controllers
 {
     public class HomeController : Controller
     {

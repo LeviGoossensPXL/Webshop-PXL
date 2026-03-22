@@ -1,7 +1,7 @@
 ﻿using Webshop.Domain.Entities;
 using Webshop.Application.Repositories;
 
-namespace Webshop.MVC.Data
+namespace Webshop.website.Data
 {
     public static class DbInitializer
     {

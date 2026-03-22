@@ -1,26 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services;
 using Webshop.Domain.Entities;
-using Webshop.MVC.ViewModels;
+using Webshop.website.ViewModels;
 
-namespace Webshop.MVC.Controllers
+namespace Webshop.website.Controllers
 {
     public class OrderController : Controller
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderService _orderService;
 
 
-        public OrderController(IOrderRepository orderRepository)
+        public OrderController(IOrderService orderService)
         {
-            _orderRepository = orderRepository;
+            _orderService = orderService;
         }
 
         //GET: Order (GetAll)
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var orders = await _orderRepository.GetAll();
+            var orders = await _orderService.GetAll();
 
             var viewModelList = orders.Select(o => new OrderListViewModel
             {
@@ -37,7 +38,7 @@ namespace Webshop.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var order = await _orderRepository.GetById(id);
+            var order = await _orderService.GetById(id);
             if (order == null)
             {
                 return NotFound();
@@ -64,7 +65,7 @@ namespace Webshop.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var order = await _orderRepository.GetById(id);
+            var order = await _orderService.GetById(id);
             if (order == null)
             {
                 return NotFound();
@@ -86,11 +87,11 @@ namespace Webshop.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var order = await _orderRepository.GetById(model.OrderId);
+                var order = await _orderService.GetById(model.OrderId);
                 if (order != null)
                 {
                     order.Status = (OrderStatus)model.Status;
-                    await _orderRepository.Update(order);
+                    await _orderService.Update(order);
                 }
 
                 return RedirectToAction("Index");
@@ -104,7 +105,7 @@ namespace Webshop.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await _orderRepository.GetById(id);
+            var order = await _orderService.GetById(id);
             if (order == null)
             {
                 return NotFound();
@@ -130,12 +131,12 @@ namespace Webshop.MVC.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _orderRepository.GetById(id);
+            var order = await _orderService.GetById(id);
 
             if (order != null)
             {
                 // Database cleanup
-                await _orderRepository.Delete(id);
+                await _orderService.Delete(id);
             }
 
             return RedirectToAction(nameof(Index));

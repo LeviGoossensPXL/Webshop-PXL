@@ -1,6 +1,6 @@
 ﻿using Webshop.Domain.Entities;
 
-namespace Webshop.MVC.ViewModels
+namespace Webshop.website.ViewModels
 {
     public class OrderUpdateViewModel
     {

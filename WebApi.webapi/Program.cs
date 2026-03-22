@@ -20,6 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+// TODO: webapi is not accessible when in docker container (probably because of no endpoints)
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

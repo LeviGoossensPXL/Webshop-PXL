@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
-using Webshop.MVC.Data;
+using Webshop.website.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,19 @@ builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+// Session configuration
+builder.Services.AddDistributedMemoryCache(); // Vereist voor session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Winkelmandje blijft 30 min bewaard
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddHttpContextAccessor(); // Voor toegang tot HttpContext in services
 
 var app = builder.Build();
 
@@ -47,7 +61,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession(); // MOET V””R UseAuthorization staan
 app.UseAuthentication();
 app.UseAuthorization();
 
