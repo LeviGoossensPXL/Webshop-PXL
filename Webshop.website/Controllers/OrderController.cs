@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Webshop.Application.Repositories;
-using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 

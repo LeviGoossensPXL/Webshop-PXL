@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 
 namespace Webshop.Application.Services
