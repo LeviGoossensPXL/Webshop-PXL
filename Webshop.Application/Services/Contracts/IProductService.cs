@@ -1,6 +1,6 @@
 ﻿using Webshop.Domain.Entities;
 
-namespace Webshop.Application.Services
+namespace Webshop.Application.Services.Contracts
 {
     public interface IProductService
     {

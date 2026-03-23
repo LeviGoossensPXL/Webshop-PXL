@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Webshop.Application.Results;
 
-namespace Webshop.Application.Services
+namespace Webshop.Application.Services.Contracts
 {
     public interface IIdentityService
     {

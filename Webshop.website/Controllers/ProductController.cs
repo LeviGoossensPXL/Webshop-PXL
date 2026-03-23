@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Webshop.Application.Repositories;
-using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 
