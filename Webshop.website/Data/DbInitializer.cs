@@ -1,4 +1,5 @@
-﻿using Webshop.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using Webshop.Domain.Entities;
 using Webshop.Application.Repositories;
 
 namespace Webshop.website.Data
@@ -16,7 +17,7 @@ namespace Webshop.website.Data
             {
                 return; // Stop here if database is not empty
             }
-
+            
             // 1. Create 6 main camping categories
             var categories = new List<Category>
             {
@@ -117,6 +118,24 @@ namespace Webshop.website.Data
             foreach (var product in products)
             {
                 await productRepo.Add(product);
+            }
+            
+            // 3. create roles
+            await SeedRolesAsync(serviceProvider);
+        }
+
+        private static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            string[] seedRoles = ["Admin", "Client"];
+
+            foreach (var role in seedRoles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
             }
         }
     }
