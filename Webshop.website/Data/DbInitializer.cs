@@ -129,7 +129,7 @@ namespace Webshop.website.Data
         private static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
 
             string[] seedRoles = ["Admin", "Client"];
 
@@ -148,7 +148,7 @@ namespace Webshop.website.Data
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                var user = new IdentityUser
+                var user = new AppUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
