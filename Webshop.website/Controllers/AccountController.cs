@@ -15,32 +15,41 @@ namespace Webshop.website.Controllers
             _userManager = userManager;
         }
 
-       
+
+        // Show the login page
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
+            // Save the return URL so the form can use it
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         // Process the login request
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
-                // Try to sign in the user
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
                 if (result.Succeeded)
                 {
-                   
+                    // If we have a safe return URL, send the user back there
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
+                    // Otherwise, send them to the shop
                     return RedirectToAction("Index", "Shop");
                 }
 
-             
-                ModelState.AddModelError(string.Empty, "Invalid login attempt. Please check your email and password.");
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
 
+            // Keep the return URL if login fails
+            ViewData["ReturnUrl"] = returnUrl;
             return View(model);
         }
 
