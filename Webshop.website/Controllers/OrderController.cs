@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Webshop.Application.Repositories;
-using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 
@@ -118,10 +118,10 @@ namespace Webshop.website.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
-                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
+                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0, //TODO move logic like this to service
                 FullAddress = order.DeliveryAddress != null
                     ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
-                    : "No address provided"
+                    : "No address provided"//TODO move logic like this to service
             };
 
             return View(viewModel);
@@ -131,13 +131,13 @@ namespace Webshop.website.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _orderService.GetById(id);
+            var order = await _orderService.GetById(id);//TODO begin
 
             if (order != null)
             {
                 // Database cleanup
                 await _orderService.Delete(id);
-            }
+            }//TODO end   [move logic like this to service]
 
             return RedirectToAction(nameof(Index));
         }

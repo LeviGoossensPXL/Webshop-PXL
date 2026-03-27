@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Webshop.Application.Results;
-using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 
-namespace Webshop.Infrastructure.Services
+namespace Webshop.Application.Services
 {
     public class IdentityService : IIdentityService
     {

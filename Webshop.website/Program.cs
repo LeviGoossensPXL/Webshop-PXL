@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
