@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services.Contracts;
@@ -7,6 +8,7 @@ using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
+    [Authorize(Roles = "Admin")] // Only admins can access this controller
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
