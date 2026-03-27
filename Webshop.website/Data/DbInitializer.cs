@@ -10,6 +10,7 @@ namespace Webshop.website.Data
         {
             var categoryRepo = serviceProvider.GetRequiredService<ICategoryRepository>();
             var productRepo = serviceProvider.GetRequiredService<IProductRepository>();
+            await SeedRolesAsync(serviceProvider);
 
             // Check if we already have products
             var existingProducts = await productRepo.GetAll();
@@ -119,11 +120,12 @@ namespace Webshop.website.Data
             {
                 await productRepo.Add(product);
             }
-            
-            // 3. create roles
-            await SeedRolesAsync(serviceProvider);
         }
-
+       /// <summary>
+       /// if roles do not exist we add them here
+       /// </summary>
+       /// <param name="serviceProvider"></param>
+       /// <returns></returns>
         private static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
