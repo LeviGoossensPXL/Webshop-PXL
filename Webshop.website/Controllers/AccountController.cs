@@ -7,10 +7,12 @@ namespace Webshop.website.Controllers
     public class AccountController : Controller
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public AccountController(SignInManager<IdentityUser> signInManager)
+        public AccountController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
        
@@ -42,7 +44,43 @@ namespace Webshop.website.Controllers
             return View(model);
         }
 
-  
+        // Show the register page
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // Process the register request
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Create a new user
+                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    // Sign in the new user
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    // Go to the shop page
+                    return RedirectToAction("Index", "Shop");
+                }
+
+                
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
