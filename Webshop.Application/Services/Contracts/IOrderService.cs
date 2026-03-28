@@ -9,5 +9,8 @@ namespace Webshop.Application.Services.Contracts
         Task Add(Order order);
         Task Update(Order order);
         Task Delete(int id);
+        decimal CalculateTotalAmount(Order order);
+        string GetFormattedDeliveryAddress(Order order);
+        Task UpdateOrderStatus(int orderId, int newStatus);
     }
 }

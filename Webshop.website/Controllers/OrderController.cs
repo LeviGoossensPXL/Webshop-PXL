@@ -29,7 +29,7 @@ namespace Webshop.website.Controllers
                 UserId = o.UserId,
                 OrderDate = o.OrderDate,
                 Status = o.Status.ToString(),
-                TotalAmount = o.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0
+                TotalAmount = _orderService.CalculateTotalAmount(o)
             }).ToList();
 
             return View(viewModelList);
@@ -50,11 +50,9 @@ namespace Webshop.website.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
-                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
+                TotalPrice = _orderService.CalculateTotalAmount(order),
                 // Format the delivery address safely
-                FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
-                    : "No address provided"
+                FullAddress = _orderService.GetFormattedDeliveryAddress(order)
             };
 
             return View(viewModel);
@@ -87,12 +85,10 @@ namespace Webshop.website.Controllers
         {
             if (ModelState.IsValid)
             {
-                var order = await _orderService.GetById(model.OrderId);
-                if (order != null)
-                {
-                    order.Status = (OrderStatus)model.Status;
-                    await _orderService.Update(order);
-                }
+                // extract the actual integer value, default to 0 (Pending) if it is somehow null
+                int statusValue = model.Status ?? 0;
+
+                await _orderService.UpdateOrderStatus(model.OrderId, statusValue);
 
                 return RedirectToAction("Index");
             }
@@ -118,10 +114,8 @@ namespace Webshop.website.Controllers
                 UserId = order.UserId,
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
-                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0, //TODO move logic like this to service
-                FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
-                    : "No address provided"//TODO move logic like this to service
+                TotalPrice = _orderService.CalculateTotalAmount(order),
+                FullAddress = _orderService.GetFormattedDeliveryAddress(order)
             };
 
             return View(viewModel);
@@ -131,14 +125,8 @@ namespace Webshop.website.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _orderService.GetById(id);//TODO begin
-
-            if (order != null)
-            {
-                // Database cleanup
-                await _orderService.Delete(id);
-            }//TODO end   [move logic like this to service]
-
+            await _orderService.Delete(id);
+            
             return RedirectToAction(nameof(Index));
         }
 
