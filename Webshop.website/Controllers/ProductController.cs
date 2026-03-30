@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Webshop.Application.Repositories;
@@ -8,6 +9,7 @@ using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
+    [Authorize(Roles = "Admin")] // Only admins can access this controller
     public class ProductController : Controller
     {
         private readonly IProductService _productService;

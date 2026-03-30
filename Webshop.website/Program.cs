@@ -16,9 +16,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppConnection"));
 });
 
-builder.Services.AddIdentity<AppUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>();
+// Add Identity setup for Users and Roles
+builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<AppDbContext>();
+
 builder.Services.AddControllersWithViews();
+
+
 
 // Register application services and repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -68,6 +74,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Product}/{action=Index}/{id?}");
+    pattern: "{controller=Shop}/{action=Index}/{id?}");
 
 app.Run();
