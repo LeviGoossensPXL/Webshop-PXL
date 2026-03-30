@@ -1,21 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Webshop.website.ViewModels;
-using Webshop.Domain.Entities;
+using Webshop.Application.Services.Contracts;
 
 namespace Webshop.website.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
+        private readonly IIdentityService _identityService;
+
+        public AccountController(IIdentityService identityService)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
+            _identityService = identityService;
         }
-
 
         // Show the login page
         [HttpGet]
@@ -32,9 +29,11 @@ namespace Webshop.website.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
-                if (result.Succeeded)
+                var result = await _identityService.SignInAsync(model.Email, model.Password);
+
+
+                if (result.SignInResult != null && result.SignInResult.Succeeded)
                 {
                     // If we have a safe return URL, send the user back there
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -48,7 +47,6 @@ namespace Webshop.website.Controllers
 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
-
             // Keep the return URL if login fails
             ViewData["ReturnUrl"] = returnUrl;
             return View(model);
@@ -67,34 +65,36 @@ namespace Webshop.website.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Create a new user
-                var user = new AppUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Succeeded)
+                var result = await _identityService.RegisterAsync(model.Email, model.Password);
+
+                if (result.IdentityResult != null && result.IdentityResult.Succeeded)
                 {
-                    // Sign in the new user
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    // If registration was successful, automatically log the user in
+                    await _identityService.SignInAsync(model.Email, model.Password);
 
                     // Go to the shop page
                     return RedirectToAction("Index", "Shop");
                 }
 
-                
-                foreach (var error in result.Errors)
+                // If the save operation failed, display the errors on screen
+                if (result.IdentityResult != null && result.IdentityResult.Errors != null)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    foreach (var error in result.IdentityResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
             }
 
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            // We are logging out via IdentityService
+            await _identityService.SignOutAsync();
             return RedirectToAction("Index", "Shop");
         }
     }

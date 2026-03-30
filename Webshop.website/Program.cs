@@ -36,6 +36,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 // Session configuration
 builder.Services.AddDistributedMemoryCache(); // Vereist voor session
