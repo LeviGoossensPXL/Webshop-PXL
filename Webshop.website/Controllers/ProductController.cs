@@ -23,12 +23,12 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productService.GetAll(categoryId);
+            var result = await _productService.GetAll(categoryId);
             var categories = await _categoryRepository.GetAll();
 
              
             // Map Domain Entities to ViewModels
-            var viewModelList = products.Select(p => new ProductListViewModel
+            var viewModelList = result.Data.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
@@ -48,8 +48,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -57,14 +57,14 @@ namespace Webshop.website.Controllers
             // Map Domain Entity to Detail ViewModel
             var viewModel = new ProductDetailViewModel
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Sku = product.Sku,
-                CategoryId = product.CategoryId,
-                CategoryName = product.Category?.Name,
-                ImageUrl = product.ImageUrl
+                ProductId = result.Data.ProductId,
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                Sku = result.Data.Sku,
+                CategoryId = result.Data.CategoryId,
+                CategoryName = result.Data.Category?.Name,
+                ImageUrl = result.Data.ImageUrl
             };
 
             return View(viewModel);
@@ -96,8 +96,13 @@ namespace Webshop.website.Controllers
                     CategoryId = model.CategoryId
                 };
 
-                await _productService.Add(product, model.ImageUrl);
-                return RedirectToAction("Index"); // Return to list after saving
+                var result = await _productService.Add(product, model.ImageUrl);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? "An error occurred.");
             }
 
             // If there is a validation error, reload the categories and show the form again
@@ -109,8 +114,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -118,13 +123,13 @@ namespace Webshop.website.Controllers
             // Map Domain Entity to Update ViewModel
             var model = new ProductUpdateViewModel
             {
-                Id = product.ProductId, 
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Sku = product.Sku,
-                CategoryId = product.CategoryId,
-                CurrentImageUrl = product.ImageUrl
+                Id = result.Data.ProductId, 
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                Sku = result.Data.Sku,
+                CategoryId = result.Data.CategoryId,
+                CurrentImageUrl = result.Data.ImageUrl
             };
 
             // Get categories for the dropdown menu
@@ -150,8 +155,14 @@ namespace Webshop.website.Controllers
                     CategoryId = model.CategoryId
                 };
 
-                await _productService.Update(product, model.NewImage, model.CurrentImageUrl);
-                return RedirectToAction("Index");
+                var result = await _productService.Update(product, model.NewImage, model.CurrentImageUrl);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? "An error occurred.");
             }
 
             // If error, reload categories for the dropdown
@@ -164,19 +175,19 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
 
             var viewModel = new ProductDetailViewModel
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageUrl = product.ImageUrl
+                ProductId = result.Data.ProductId,
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                ImageUrl = result.Data.ImageUrl
             };
 
             return View(viewModel); // We show the details to ask "Are you sure?"
