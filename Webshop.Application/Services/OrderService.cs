@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Webshop.Application.Repositories;
+using Webshop.Application.Results;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 
@@ -18,34 +19,55 @@ namespace Webshop.Application.Services
             _orderRepository = orderRepository;
         }
 
-        public async Task<IEnumerable<Order>> GetAll()
+        public async Task<ServiceResultOfT<IEnumerable<Order>>> GetAll()
         {
-            return await _orderRepository.GetAll();
+            var result = new ServiceResultOfT<IEnumerable<Order>>();
+            result.Data = await _orderRepository.GetAll();
+            return result;
         }
 
-        public async Task<Order?> GetById(int id)
+        public async Task<ServiceResultOfT<Order>> GetById(int id)
         {
-            return await _orderRepository.GetById(id);
-        }
-
-        public async Task Add(Order order)
-        {
-            await _orderRepository.Add(order);
-        }
-
-        public async Task Update(Order order)
-        {
-            await _orderRepository.Update(order);
-        }
-
-        public async Task Delete(int id)
-        {
-            // verify order exists before attempting deletion to prevent crashes
+            var result = new ServiceResultOfT<Order>();
             var order = await _orderRepository.GetById(id);
-            if (order != null)
+
+            // return a failed result instead of null if the entity does not exist
+            if (order == null)
             {
-                await _orderRepository.Delete(id);
+                result.Failed("Order not found.");
+                return result;
             }
+
+            result.Data = order;
+            return result;
+        }
+
+        public async Task<ServiceResult> Add(Order order)
+        {
+            var result = new ServiceResult();
+            await _orderRepository.Add(order);
+            return result;
+        }
+
+        public async Task<ServiceResult> Update(Order order)
+        {
+            var result = new ServiceResult();
+            await _orderRepository.Update(order);
+            return result;
+        }
+
+        public async Task<ServiceResult> Delete(int id)
+        {
+            var result = new ServiceResult();
+            // verify order doesn't exists before attempting deletion to prevent crashes
+            var order = await _orderRepository.GetById(id);
+            if (order == null)
+            {
+                result.Failed("Order not found and could not be deleted.");
+                return result;
+            }
+            await _orderRepository.Delete(id);
+            return result;
         }
         public decimal CalculateTotalAmount(Order order)
         {
@@ -63,15 +85,20 @@ namespace Webshop.Application.Services
 
             return $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}";
         }
-        public async Task UpdateOrderStatus(int orderId, int newStatus)
+        public async Task<ServiceResult> UpdateOrderStatus(int orderId, int newStatus)
         {
+            var result = new ServiceResult();
             // safely fetch the order and update its status within the service layer to prevent direct entity manipulation in controllers
             var order = await _orderRepository.GetById(orderId);
-            if (order != null)
+            if (order == null)
             {
-                order.Status = (OrderStatus)newStatus;
-                await _orderRepository.Update(order);
+                result.Failed("Order not found. Status update failed.");
+                return result;
             }
+            order.Status = (OrderStatus)newStatus;
+            await _orderRepository.Update(order);
+
+            return result;
         }
     }
 }
