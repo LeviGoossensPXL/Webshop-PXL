@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
@@ -6,6 +7,7 @@ using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly IOrderService _orderService;
@@ -35,7 +37,7 @@ namespace Webshop.website.Controllers
                 if (string.IsNullOrEmpty(item.ProductName))
                 {
                     var product = await _productService.GetById(item.ProductId);
-                    item.ProductName = product?.Name ?? "Unknown Product";
+                    item.ProductName = product.Data.Name ?? "Unknown Product";
                 }
             }
             SaveCartToSession(cart);

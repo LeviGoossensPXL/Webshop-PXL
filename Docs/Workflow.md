@@ -27,6 +27,18 @@ these rules can apply to the developer and/or the reviewer of the code.
 	- Test the changes locally before pushing or merging.
 	- Try to check existing functionality is not broken.
 
+### solve conflicts (merge)
+1. get the local project
+2. pull the dev branch
+3. pull the feature branch
+4. make sure you are on the dev branch
+5. do `git merge <feature>`
+6. if you have conflicts solve them
+7. do `git add .`
+8. do `git commit -m <message>` with a message like "solved conflict"
+9. do `git push`
+10. conflicts are solved on remote (azure devops, github)
+
 ### merge dev branch to main branch
 > [!CAUTION]  
 > merging or making changes on main is what will go into production.  
