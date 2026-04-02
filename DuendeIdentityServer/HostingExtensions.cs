@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 
@@ -29,6 +31,8 @@ namespace DuendeIdentityServer
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddInMemoryClients(Config.Clients)
                 .AddAspNetIdentity<AppUser>();
+
+            builder.Services.AddScoped<IIdentityService, IdentityService>();
 
             return builder.Build();
         }

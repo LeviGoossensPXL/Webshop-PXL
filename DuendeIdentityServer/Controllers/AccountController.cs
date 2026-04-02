@@ -1,10 +1,17 @@
 ﻿using DuendeIdentityServer.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Webshop.Application.Services.Contracts;
 
 namespace DuendeIdentityServer.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly IIdentityService _identityService;
+
+        public AccountController(IIdentityService identityService)
+        {
+            _identityService = identityService;
+        }
         [HttpGet]
         public IActionResult Login(string returnUrl)
         {
@@ -21,10 +28,32 @@ namespace DuendeIdentityServer.Controllers
         {
             if (ModelState.IsValid)
             {
-                
-                // If login is successful, we will redirect the user back to the webshop using model.ReturnUrl
 
-                ModelState.AddModelError("", "Database validation is not yet connected.");
+                var result = await _identityService.SignInAsync(model.Username, model.Password);
+
+                if (result.Succeeded && result.SignInResult != null && result.SignInResult.Succeeded)
+                {
+                    // verify if the return url belongs to our application to prevent redirect attacks
+                    if (Url.IsLocalUrl(model.ReturnUrl))
+                    {
+                        return Redirect(model.ReturnUrl);
+                    }
+                    else if (string.IsNullOrEmpty(model.ReturnUrl))
+                    {
+                        // fallback to the application root if the return url is missing
+                        return Redirect("~/");
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid return URL.");
+                    }
+                }
+
+                // bind any authentication errors to the model state to show them on the ui
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
             }
 
             return View(model);
