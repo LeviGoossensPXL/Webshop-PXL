@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Webshop.Domain.Entities;
+using Webshop.Infrastructure.Data;
 
 namespace DuendeIdentityServer
 {
@@ -7,7 +11,14 @@ namespace DuendeIdentityServer
         public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
         {
             // uncomment if you want to add a UI
-            //builder.Services.AddRazorPages();
+            builder.Services.AddRazorPages();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
 
             builder.Services.AddIdentityServer(options =>
                 {
@@ -16,7 +27,8 @@ namespace DuendeIdentityServer
                 })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients);
+                .AddInMemoryClients(Config.Clients)
+                .AddAspNetIdentity<AppUser>();
 
             return builder.Build();
         }
