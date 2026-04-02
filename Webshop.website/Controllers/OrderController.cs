@@ -23,15 +23,15 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var orders = await _orderService.GetAll();
+            var result = await _orderService.GetAll();
 
-            var viewModelList = orders.Select(o => new OrderListViewModel
+            var viewModelList = result.Data.Select(o => new OrderListViewModel
             {
                 OrderId = o.OrderId,
                 UserId = o.UserId,
                 OrderDate = o.OrderDate,
                 Status = o.Status.ToString(),
-                TotalAmount = o.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0
+                TotalAmount = _orderService.CalculateTotalAmount(o)
             }).ToList();
 
             return View(viewModelList);
@@ -40,23 +40,22 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var order = await _orderService.GetById(id);
-            if (order == null)
+            var result = await _orderService.GetById(id);
+            // rely on the explicit result status rather than null checks
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
 
             var viewModel = new OrderDetailViewModel
             {
-                OrderId = order.OrderId,
-                UserId = order.UserId,
-                OrderDate = order.OrderDate,
-                Status = order.Status.ToString(),
-                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0,
+                OrderId = result.Data.OrderId,
+                UserId = result.Data.UserId,
+                OrderDate = result.Data.OrderDate,
+                Status = result.Data.Status.ToString(),
+                TotalPrice = _orderService.CalculateTotalAmount(result.Data),
                 // Format the delivery address safely
-                FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
-                    : "No address provided"
+                FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data)
             };
 
             return View(viewModel);
@@ -67,8 +66,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var order = await _orderService.GetById(id);
-            if (order == null)
+            var result = await _orderService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -76,8 +75,8 @@ namespace Webshop.website.Controllers
             // Map Domain Entity to Update ViewModel
             var model = new OrderUpdateViewModel
             {
-                OrderId = order.OrderId,
-                Status = (int)order.Status
+                OrderId = result.Data.OrderId,
+                Status = (int)result.Data.Status
             };
 
             return View(model);
@@ -89,11 +88,14 @@ namespace Webshop.website.Controllers
         {
             if (ModelState.IsValid)
             {
-                var order = await _orderService.GetById(model.OrderId);
-                if (order != null)
+                // extract the actual integer value, default to 0 (Pending) if it is somehow null
+                int statusValue = model.Status ?? 0;
+
+                var result = await _orderService.UpdateOrderStatus(model.OrderId, statusValue);
+                if (!result.Succeeded)
                 {
-                    order.Status = (OrderStatus)model.Status;
-                    await _orderService.Update(order);
+                    ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault());
+                    return View(model);
                 }
 
                 return RedirectToAction("Index");
@@ -107,8 +109,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await _orderService.GetById(id);
-            if (order == null)
+            var result = await _orderService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -116,14 +118,12 @@ namespace Webshop.website.Controllers
             // We show the details to ask "Are you sure?"
             var viewModel = new OrderDetailViewModel
             {
-                OrderId = order.OrderId,
-                UserId = order.UserId,
-                OrderDate = order.OrderDate,
-                Status = order.Status.ToString(),
-                TotalPrice = order.OrderLines?.Sum(ol => ol.Quantity * ol.UnitPrice) ?? 0, //TODO move logic like this to service
-                FullAddress = order.DeliveryAddress != null
-                    ? $"{order.DeliveryAddress.Street} {order.DeliveryAddress.HouseNumber}, {order.DeliveryAddress.ZipCode} {order.DeliveryAddress.City}, {order.DeliveryAddress.Country}"
-                    : "No address provided"//TODO move logic like this to service
+                OrderId = result.Data.OrderId,
+                UserId = result.Data.UserId,
+                OrderDate = result.Data.OrderDate,
+                Status = result.Data.Status.ToString(),
+                TotalPrice = _orderService.CalculateTotalAmount(result.Data),
+                FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data)
             };
 
             return View(viewModel);
@@ -133,14 +133,8 @@ namespace Webshop.website.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _orderService.GetById(id);//TODO begin
-
-            if (order != null)
-            {
-                // Database cleanup
-                await _orderService.Delete(id);
-            }//TODO end   [move logic like this to service]
-
+            await _orderService.Delete(id);
+            
             return RedirectToAction(nameof(Index));
         }
 

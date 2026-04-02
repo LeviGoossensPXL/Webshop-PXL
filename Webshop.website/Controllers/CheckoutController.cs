@@ -37,7 +37,7 @@ namespace Webshop.website.Controllers
                 if (string.IsNullOrEmpty(item.ProductName))
                 {
                     var product = await _productService.GetById(item.ProductId);
-                    item.ProductName = product?.Name ?? "Unknown Product";
+                    item.ProductName = product.Data.Name ?? "Unknown Product";
                 }
             }
             SaveCartToSession(cart);
