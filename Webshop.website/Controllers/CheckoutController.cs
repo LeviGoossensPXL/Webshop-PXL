@@ -37,13 +37,14 @@ namespace Webshop.website.Controllers
                 if (string.IsNullOrEmpty(item.ProductName))
                 {
                     var product = await _productService.GetById(item.ProductId);
-                    item.ProductName = product.Data.Name ?? "Unknown Product";
+                    item.ProductName = product.Data?.Name ?? "Unknown Product";
                 }
             }
             SaveCartToSession(cart);
 
             ViewBag.Cart = cart;
-            ViewBag.UserName = "GuestCustomer";
+            // Use the logged-in user's email, or fallback to GuestCustomer
+            ViewBag.UserName = User.Identity?.Name ?? "GuestCustomer";
 
             return View(new OrderCreateViewModel());
         }
@@ -67,7 +68,7 @@ namespace Webshop.website.Controllers
             return RedirectToAction("Index");
         }
 
-        // POST: Checkout/Process (Save the order to database)
+        // POST: Checkout/Process (Save the order to database and go to payment)
         [HttpPost]
         public async Task<IActionResult> Process(OrderCreateViewModel model)
         {
@@ -76,10 +77,10 @@ namespace Webshop.website.Controllers
 
             if (ModelState.IsValid)
             {
-                // Create the real Order with products inside!
+                // Create the real Order with status Pending
                 var order = new Order
                 {
-                    UserId = "GuestCustomer", // When we add login later, we change this to real UserId
+                    UserId = User.Identity?.Name ?? "GuestCustomer",
                     OrderDate = DateTime.UtcNow,
                     Status = OrderStatus.Pending,
                     DeliveryAddress = new Address
@@ -99,19 +100,41 @@ namespace Webshop.website.Controllers
                     }).ToList()
                 };
 
-               
                 await _orderService.Add(order);
 
-                // Empty the shopping cart after successful order
-                HttpContext.Session.Remove(CartSessionKey);
-
-                
-                return View("Success", order.OrderId);
+                // Redirect to the new Payment page with the generated Order ID
+                return RedirectToAction("Payment", new { orderId = order.OrderId });
             }
+
             ViewBag.Cart = cart;
-            ViewBag.UserName = "GuestCustomer";
-            
+            ViewBag.UserName = User.Identity?.Name ?? "GuestCustomer";
             return View("Index", model);
+        }
+
+        // GET: Checkout/Payment (Show fake payment page)
+        [HttpGet]
+        public IActionResult Payment(int orderId)
+        {
+            ViewBag.OrderId = orderId;
+            return View();
+        }
+
+        // POST: Checkout/ProcessPayment (Complete the fake payment)
+        [HttpPost]
+        public IActionResult ProcessPayment(int orderId)
+        {
+            // Empty the shopping cart ONLY after successful payment
+            HttpContext.Session.Remove(CartSessionKey);
+
+            // Show the intermediate success and redirect page instead of jumping directly
+            return View("PaymentSuccess", orderId);
+        }
+
+        // GET: Checkout/Success (Show order complete page)
+        [HttpGet]
+        public IActionResult Success(int orderId)
+        {
+            return View(orderId);
         }
 
         private CartViewModel GetCartFromSession()
@@ -119,6 +142,7 @@ namespace Webshop.website.Controllers
             var sessionData = HttpContext.Session.GetString(CartSessionKey);
             return string.IsNullOrEmpty(sessionData) ? new CartViewModel() : JsonSerializer.Deserialize<CartViewModel>(sessionData) ?? new CartViewModel();
         }
+
         private void SaveCartToSession(CartViewModel cart)
         {
             HttpContext.Session.SetString(CartSessionKey, JsonSerializer.Serialize(cart));
