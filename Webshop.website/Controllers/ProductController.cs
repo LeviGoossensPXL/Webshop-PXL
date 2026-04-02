@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using Webshop.Application.Repositories;
@@ -8,6 +9,7 @@ using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
+    [Authorize(Roles = "Admin")] // Only admins can access this controller
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -23,23 +25,19 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productService.GetAll();
+            var result = await _productService.GetAll(categoryId);
             var categories = await _categoryRepository.GetAll();
 
-            if(categoryId.HasValue && categoryId >0)
-            {
-                products = products.Where(p => p.CategoryId == categoryId.Value);
-            }
              
             // Map Domain Entities to ViewModels
-            var viewModelList = products.Select(p => new ProductListViewModel
+            var viewModelList = result.Data.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
                 // If Category is not null, get its Name
-                CategoryName=categories.FirstOrDefault(c =>c.CategoryId ==p.CategoryId)?.Name ?? "Unknown",
+                CategoryName = categories.FirstOrDefault(c =>c.CategoryId ==p.CategoryId)?.Name ?? "Unknown",
                 ImageUrl = p.ImageUrl
             }).ToList();
 
@@ -52,8 +50,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -61,14 +59,14 @@ namespace Webshop.website.Controllers
             // Map Domain Entity to Detail ViewModel
             var viewModel = new ProductDetailViewModel
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Sku = product.Sku,
-                CategoryId = product.CategoryId,
-                CategoryName = product.Category.Name,
-                ImageUrl = product.ImageUrl
+                ProductId = result.Data.ProductId,
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                Sku = result.Data.Sku,
+                CategoryId = result.Data.CategoryId,
+                CategoryName = result.Data.Category?.Name,
+                ImageUrl = result.Data.ImageUrl
             };
 
             return View(viewModel);
@@ -97,15 +95,16 @@ namespace Webshop.website.Controllers
                     Description = model.Description,
                     Price = model.Price,
                     Sku = model.Sku,
-                    CategoryId = model.CategoryId,
-                    // If ImageUrl is empty or consists only of spaces, print the default image
-                    ImageUrl = string.IsNullOrWhiteSpace(model.ImageUrl)
-                            ? "/images/default.jpg"
-                            : model.ImageUrl
+                    CategoryId = model.CategoryId
                 };
 
-                await _productService.Add(product);
-                return RedirectToAction("Index"); // Return to list after saving
+                var result = await _productService.Add(product, model.ImageUrl);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? "An error occurred.");
             }
 
             // If there is a validation error, reload the categories and show the form again
@@ -117,8 +116,8 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
@@ -126,13 +125,13 @@ namespace Webshop.website.Controllers
             // Map Domain Entity to Update ViewModel
             var model = new ProductUpdateViewModel
             {
-                Id = product.ProductId, 
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Sku = product.Sku,
-                CategoryId = product.CategoryId,
-                CurrentImageUrl = product.ImageUrl
+                Id = result.Data.ProductId, 
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                Sku = result.Data.Sku,
+                CategoryId = result.Data.CategoryId,
+                CurrentImageUrl = result.Data.ImageUrl
             };
 
             // Get categories for the dropdown menu
@@ -148,28 +147,6 @@ namespace Webshop.website.Controllers
         {
             if (ModelState.IsValid)
             {
-                
-                string imageUrl = model.CurrentImageUrl ?? "/images/default.jpg";
-
-               
-                if (model.NewImage != null && model.NewImage.Length > 0)
-                {
-                    
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.NewImage.FileName);
-
-                    // Define the path to save the file in wwwroot/images
-                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-
-                    
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.NewImage.CopyToAsync(stream);
-                    }
-
-                    
-                    imageUrl = "/images/" + fileName;
-                }
-
                 var product = new Product
                 {
                     ProductId = model.Id,
@@ -177,12 +154,17 @@ namespace Webshop.website.Controllers
                     Description = model.Description,
                     Price = model.Price,
                     Sku = model.Sku,
-                    CategoryId = model.CategoryId,
-                    ImageUrl = imageUrl // Use either the old one or the newly uploaded one
+                    CategoryId = model.CategoryId
                 };
 
-                await _productService.Update(product);
-                return RedirectToAction("Index");
+                var result = await _productService.Update(product, model.NewImage, model.CurrentImageUrl);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? "An error occurred.");
             }
 
             // If error, reload categories for the dropdown
@@ -195,19 +177,19 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null)
+            var result = await _productService.GetById(id);
+            if (!result.Succeeded)
             {
                 return NotFound();
             }
 
             var viewModel = new ProductDetailViewModel
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageUrl = product.ImageUrl
+                ProductId = result.Data.ProductId,
+                Name = result.Data.Name,
+                Description = result.Data.Description,
+                Price = result.Data.Price,
+                ImageUrl = result.Data.ImageUrl
             };
 
             return View(viewModel); // We show the details to ask "Are you sure?"
@@ -217,25 +199,7 @@ namespace Webshop.website.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _productService.GetById(id);
-
-            if (product != null)
-            {
-                // 1. Physical file cleanup (Don't delete the default image!)
-                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "/images/default.jpg")
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.ImageUrl.TrimStart('/'));
-
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
-
-                // 2. Database cleanup
-                await _productService.Delete(id);
-            }
-
+            await _productService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 

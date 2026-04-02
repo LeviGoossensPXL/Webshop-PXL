@@ -129,6 +129,7 @@ namespace Webshop.website.Data
         private static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
 
             string[] seedRoles = ["Admin", "Client"];
 
@@ -137,6 +138,29 @@ namespace Webshop.website.Data
                 if (!await roleManager.RoleExistsAsync(role))
                 {
                     await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+            // 2. Create Default Admin User
+            string adminEmail = "admin@webshop.com";
+            string adminPassword = "AdminPassword123!";
+
+            // Check if the admin user already exists
+
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            {
+                var user = new AppUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(user, adminPassword);
+
+                if (result.Succeeded)
+                {
+                    // Assign the Admin role to the new user
+                    await userManager.AddToRoleAsync(user, "Admin");
                 }
             }
         }
