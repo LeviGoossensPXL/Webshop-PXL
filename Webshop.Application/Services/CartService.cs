@@ -86,5 +86,26 @@ namespace Webshop.Application.Services
             var sessionData = JsonSerializer.Serialize(cart);
             _httpContextAccessor.HttpContext?.Session.SetString(CartSessionKey, sessionData);
         }
+
+        public void ClearCart()
+        {
+            _httpContextAccessor.HttpContext?.Session.Remove(CartSessionKey);
+        }
+
+        public void UpdateQuantity(int productId, int change)
+        {
+            var cart = GetCart();
+            var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+
+            if (item != null)
+            {
+                item.Quantity += change;
+                if (item.Quantity <= 0)
+                {
+                    cart.Items.Remove(item);
+                }
+                SaveCart(cart);
+            }
+        }
     }
 }

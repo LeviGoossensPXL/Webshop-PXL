@@ -28,7 +28,7 @@
                         {
                             <tr>
                                 <td class="ps-4 fw-bold">#@item.OrderId</td>
-                                <td>@item.OrderDate.ToString("dd MMM yyyy, HH:mm")</td>
+								<td>@item.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
                                 <td class="text-muted">@item.UserId</td>
                                 <td class="fw-bold text-success">€ @item.TotalAmount.ToString("F2")</td>
                                 <td>
