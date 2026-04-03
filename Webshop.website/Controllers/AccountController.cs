@@ -95,7 +95,11 @@ namespace Webshop.website.Controllers
         {
             // We are logging out via IdentityService
             await _identityService.SignOutAsync();
+            // Clear the session memory (now this will empty the shopping cart)
+            HttpContext.Session.Clear();
+
             return RedirectToAction("Index", "Shop");
         }
+       
     }
 }
