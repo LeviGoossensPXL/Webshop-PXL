@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Webshop.website.ViewModels;
 using Webshop.Application.Services.Contracts;
+using Webshop.Domain.Entities;
 
 namespace Webshop.website.Controllers
 {
@@ -8,10 +14,14 @@ namespace Webshop.website.Controllers
     {
 
         private readonly IIdentityService _identityService;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(IIdentityService identityService)
+        public AccountController(IIdentityService identityService, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
         {
             _identityService = identityService;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         // Show the login page
@@ -100,6 +110,51 @@ namespace Webshop.website.Controllers
 
             return RedirectToAction("Index", "Shop");
         }
-       
+
+        public IActionResult GoogleLogin()
+        {
+            string? redirectUrl = Url.Action("GoogleResponse");
+            string scheme = "oidc";
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(
+                scheme, redirectUrl);
+            return new ChallengeResult(scheme, properties);
+        }
+
+        public async Task<IActionResult> GoogleResponse()
+        {
+            ExternalLoginInfo? externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+            if (externalLoginInfo == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var user = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
+            if (user == null)
+            {
+                user = await CreateIdentityUserFromClaims(externalLoginInfo);
+            }
+            await _signInManager.SignInAsync(user, true);
+            return RedirectToAction("Index", "Home");
+        }
+
+        private async Task<AppUser?> CreateIdentityUserFromClaims(ExternalLoginInfo externalLoginInfo)
+        {
+            var claim = externalLoginInfo.Principal.FindFirst(ClaimTypes.Email);
+            if (claim == null) return null;
+            var email = claim.Value;
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new AppUser {UserName = email, Email = email };
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return null;
+                }
+            }
+            var loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
+            if (!loginResult.Succeeded) return null;
+            return user;
+        }
     }
 }
