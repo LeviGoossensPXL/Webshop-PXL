@@ -6,7 +6,6 @@ namespace Webshop.website.Controllers
 {
     public class AccountController : Controller
     {
-
         private readonly IIdentityService _identityService;
 
         public AccountController(IIdentityService identityService)
