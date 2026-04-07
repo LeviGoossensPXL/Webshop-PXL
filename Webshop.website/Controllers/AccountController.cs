@@ -1,12 +1,6 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Webshop.website.ViewModels;
 using Webshop.Application.Services.Contracts;
-using Webshop.Domain.Entities;
 
 namespace Webshop.website.Controllers
 {
@@ -14,14 +8,10 @@ namespace Webshop.website.Controllers
     {
 
         private readonly IIdentityService _identityService;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(IIdentityService identityService, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
+        public AccountController(IIdentityService identityService)
         {
             _identityService = identityService;
-            _signInManager = signInManager;
-            _userManager = userManager;
         }
 
         // Show the login page
@@ -114,7 +104,7 @@ namespace Webshop.website.Controllers
         public IActionResult GoogleLogin()
         {
             var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
-            return new ChallengeResult(properties.GetParameter<string>("provider")!, properties);
+            return new ChallengeResult("oidc", properties);
         }
 
         public async Task<IActionResult> GoogleResponse()
