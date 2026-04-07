@@ -113,48 +113,24 @@ namespace Webshop.website.Controllers
 
         public IActionResult GoogleLogin()
         {
-            string? redirectUrl = Url.Action("GoogleResponse");
-            string scheme = "oidc";
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(
-                scheme, redirectUrl);
-            return new ChallengeResult(scheme, properties);
+            var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
+            return new ChallengeResult(properties.GetParameter<string>("provider")!, properties);
         }
 
         public async Task<IActionResult> GoogleResponse()
         {
-            ExternalLoginInfo? externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-            if (externalLoginInfo == null)
-            {
-                return RedirectToAction(nameof(Login));
-            }
+            var result = await _identityService.GoogleResponse();
 
-            var user = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
-            if (user == null)
+            if (!result.Succeeded)
             {
-                user = await CreateIdentityUserFromClaims(externalLoginInfo);
-            }
-            await _signInManager.SignInAsync(user, true);
-            return RedirectToAction("Index", "Home");
-        }
-
-        private async Task<AppUser?> CreateIdentityUserFromClaims(ExternalLoginInfo externalLoginInfo)
-        {
-            var claim = externalLoginInfo.Principal.FindFirst(ClaimTypes.Email);
-            if (claim == null) return null;
-            var email = claim.Value;
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                user = new AppUser {UserName = email, Email = email };
-                var result = await _userManager.CreateAsync(user);
-                if (!result.Succeeded)
+                foreach (var error in result.Errors)
                 {
-                    return null;
+                    ModelState.AddModelError(string.Empty, error);
                 }
+                return RedirectToAction("Login");
             }
-            var loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
-            if (!loginResult.Succeeded) return null;
-            return user;
+
+            return RedirectToAction("Index", "Shop");
         }
     }
 }
