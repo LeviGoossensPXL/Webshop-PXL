@@ -57,6 +57,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.Migrate(); // always apply migrations during startup (could cause problems)
+    // more info here: https://codebuckets.com/2020/08/14/applying-entity-framework-migrations-to-a-docker-container/
 
     await DbInitializer.SeedAsync(scope.ServiceProvider);
 }
