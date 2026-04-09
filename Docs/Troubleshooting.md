@@ -6,14 +6,13 @@ feel free to extend or add to this document if you encountered a issue or someth
 2. `docker-compose up -d --build` was executed accourding to proper instructions
 3. containers all running without any errors
 
-## database problems
+## database problems (or migration problems)
 1. exceute commands below
 ```
 docker-compose down -v
 ```
 2. run application again. [link](../README.md)
-3. see that docker container `webshop.website` crashes
-4. execute migrations from visual studio
+3. see that it executes migrations automatically
 
 ## wierd build errors
 1. in this case check first for any errors in the code.
