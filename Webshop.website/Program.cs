@@ -11,7 +11,7 @@ using Webshop.website.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from the .env file
-builder.Configuration.AddDotNetEnv();
+builder.Configuration.AddDotNetEnv("../");
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
