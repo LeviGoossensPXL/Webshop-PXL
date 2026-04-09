@@ -55,6 +55,9 @@ var app = builder.Build();
 // ==========================================================
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.Migrate(); // always apply migrations during startup (could cause problems)
+
     await DbInitializer.SeedAsync(scope.ServiceProvider);
 }
 // ==========================================================
@@ -71,7 +74,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession(); // MOET VÓÓR UseAuthorization staan
+app.UseSession(); // MOET Vï¿½ï¿½R UseAuthorization staan
 app.UseAuthentication();
 app.UseAuthorization();
 
