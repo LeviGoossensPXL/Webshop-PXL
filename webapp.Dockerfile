@@ -10,6 +10,7 @@ WORKDIR /src
 COPY ["Webshop.website/Webshop.website.csproj", "Webshop.website/"]
 COPY ["Webshop.Domain/Webshop.Domain.csproj", "Webshop.Domain/"]
 COPY ["Webshop.Infrastructure/Webshop.Infrastructure.csproj", "Webshop.Infrastructure/"]
+COPY ["Webshop.Application/Webshop.Application.csproj", "Webshop.Application/"]
 #install packages
 RUN dotnet restore "./Webshop.website/Webshop.website.csproj"
 COPY . .

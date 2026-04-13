@@ -29,7 +29,7 @@ builder.Services.AddServerSideBlazor(); // Enable Blazor Server services
 
 // Register application services and repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
+
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -50,7 +50,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddHttpContextAccessor(); // Voor toegang tot HttpContext in services
-builder.Services.AddHttpClient(); // Voor externe API-aanroepen in services(Prepare for the API stock creation requirement)
+// Named HttpClient for Stock Web API
+builder.Services.AddHttpClient("StockApi", client =>
+{
+    // In Docker: http://webshop.webapi:8080, locally: http://localhost:8078
+    var stockApiUrl = builder.Configuration["StockApi:BaseUrl"] ?? "http://localhost:8078";
+    client.BaseAddress = new Uri(stockApiUrl);
+});
 
 var app = builder.Build();
 
@@ -69,11 +75,10 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

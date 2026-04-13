@@ -1,10 +1,12 @@
-﻿@using Webshop.Application.Services.Contracts
+@using Webshop.Application.Services.Contracts
 @using Webshop.Application.Repositories
 @using Webshop.Domain.Entities
+@using System.Net.Http.Json
 
 @inject IProductService ProductService
 @inject ICategoryRepository CategoryRepository
 @inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
 
 <div class="container mt-4">
 	<div class="row justify-content-center">
@@ -49,9 +51,24 @@
 					<InputTextArea @bind-Value="newProduct.Description" class="form-control" rows="3" />
 				</div>
 
-				<div class="mb-4">
+				<div class="mb-3">
 					<label class="form-label">Image URL</label>
 					<InputText @bind-Value="newProduct.ImageUrl" class="form-control" placeholder="/images/default.jpg" />
+				</div>
+
+				<hr class="my-3" />
+				<h5 class="text-muted mb-3">📦 Stock Information</h5>
+
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Initial Stock Quantity</label>
+						<InputNumber @bind-Value="initialStock" class="form-control" />
+						<small class="text-muted">How many units are you adding to the warehouse?</small>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Warehouse Location</label>
+						<InputText @bind-Value="warehouseLocation" class="form-control" placeholder="e.g. Warehouse A" />
+					</div>
 				</div>
 
 				<div class="d-grid gap-2">
@@ -64,28 +81,51 @@
 </div>
 
 @code {
-	// The product model to bind the form data
 	private Product newProduct = new Product();
-
-	// List to hold categories fetched from the database
 	private IEnumerable<Category> categories = new List<Category>();
+	private int initialStock = 1;
+	private string warehouseLocation = "Default Warehouse";
 
-	// This method runs automatically when the component loads
 	protected override async Task OnInitializedAsync()
 	{
-		// Fetch categories to populate the dropdown menu
 		categories = await CategoryRepository.GetAll();
 	}
 
 	private async Task HandleValidSubmit()
 	{
-		// Save the product using the application service
-		await ProductService.Add(newProduct, newProduct.ImageUrl);
+		try
+		{
+			newProduct.ProductId = 0;
 
-		// TODO: Later we will add the Web API call here to create the stock
-		// as requested by the teacher.
+			// 1. Save product to webshop database
+			await ProductService.Add(newProduct, newProduct.ImageUrl);
 
-		// Redirect back to the MVC product list page
-		NavigationManager.NavigateTo("/Product", forceLoad: true);
+			// 2. Create stock entry in the Stock Web API
+			var newStock = new StockItem
+			{
+				ProductId = newProduct.ProductId,
+				Quantity = initialStock,
+				Sku = newProduct.Sku ?? "NO-SKU",
+				WarehouseLocation = string.IsNullOrWhiteSpace(warehouseLocation) ? "Default Warehouse" : warehouseLocation
+			};
+
+			// 3. Send POST to Stock Web API
+			var client = HttpClientFactory.CreateClient("StockApi");
+			var response = await client.PostAsJsonAsync("/StockItem", newStock);
+
+			if (response.IsSuccessStatusCode)
+			{
+				NavigationManager.NavigateTo("/Product", forceLoad: true);
+			}
+			else
+			{
+				var apiError = await response.Content.ReadAsStringAsync();
+				Console.WriteLine($"API Error: {apiError}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"ERROR (Submit): {ex.Message}");
+		}
 	}
 }
