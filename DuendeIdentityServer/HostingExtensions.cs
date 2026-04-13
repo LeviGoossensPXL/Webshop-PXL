@@ -13,9 +13,9 @@ namespace DuendeIdentityServer
         public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
         {
             // uncomment if you want to add a UI
-            builder.Services.AddRazorPages();
+            builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("AppConnection")));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -26,6 +26,7 @@ namespace DuendeIdentityServer
                 {
                     // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
                     options.EmitStaticAudienceClaim = true;
+                    options.IssuerUri = "https://localhost:5001";
                 })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
@@ -49,7 +50,7 @@ namespace DuendeIdentityServer
             app.UseRouting();
             app.UseIdentityServer();
             app.UseAuthorization();
-            app.MapRazorPages().RequireAuthorization();
+            app.MapDefaultControllerRoute();
 
             return app;
         }
