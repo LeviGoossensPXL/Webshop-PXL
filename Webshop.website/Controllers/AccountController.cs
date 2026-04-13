@@ -97,5 +97,21 @@ namespace Webshop.website.Controllers
             await _identityService.SignOutAsync();
             return RedirectToAction("Index", "Shop");
         }
+
+        [HttpGet]
+        public IActionResult LoginWithDuende(string returnUrl = "/")
+        {
+            // ensure the return url is safe and local to our application
+            var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
+
+            // build an absolute uri for the authentication properties to prevent request uri errors
+            var properties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                RedirectUri = Url.Content($"~{safeReturnUrl}")
+            };
+
+            // challenge the oidc scheme to trigger the redirect to duende identityserver
+            return Challenge(properties, "oidc");
+        }
     }
 }

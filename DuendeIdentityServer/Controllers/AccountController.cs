@@ -29,7 +29,7 @@ namespace DuendeIdentityServer.Controllers
             if (ModelState.IsValid)
             {
 
-                var result = await _identityService.SignInAsync(model.Username, model.Password);
+                var result = await _identityService.SignInAsync(model.Email, model.Password);
 
                 if (result.Succeeded && result.SignInResult != null && result.SignInResult.Succeeded)
                 {

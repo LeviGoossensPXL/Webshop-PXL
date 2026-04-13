@@ -11,7 +11,9 @@ namespace DuendeIdentityServer
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
-                new IdentityResources.Email()
+                new IdentityResources.Email(),
+                // define a new resource for roles so duende knows it can share role claims
+                new IdentityResource("roles", "User Roles", new[] { "role" })
             };
 
         public static IEnumerable<ApiScope> ApiScopes =>
@@ -32,10 +34,10 @@ namespace DuendeIdentityServer
                         // allow the application to request refresh tokens to keep users logged in
                         AllowOfflineAccess = true,
 
-                        RedirectUris = { "https://localhost:5002/signin-oidc" },
-                        PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+                        RedirectUris = { "https://localhost:7117/signin-oidc" },
+                        PostLogoutRedirectUris = { "https://localhost:7117/signout-callback-oidc" },
 
-                        AllowedScopes = { "openid", "profile", "email" },
+                        AllowedScopes = { "openid", "profile", "email", "roles" },
                         AlwaysIncludeUserClaimsInIdToken = true
                     }
                 };
