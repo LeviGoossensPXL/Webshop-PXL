@@ -23,6 +23,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddServerSideBlazor(); // Enable Blazor Server services 
 
 
 
@@ -49,6 +50,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddHttpContextAccessor(); // Voor toegang tot HttpContext in services
+builder.Services.AddHttpClient(); // Voor externe API-aanroepen in services(Prepare for the API stock creation requirement)
 
 var app = builder.Build();
 
@@ -79,6 +81,7 @@ app.UseSession(); // MOET V��R UseAuthorization staan
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapBlazorHub(); // Map Blazor Server Hub (Open the connection for Blazor Server communication)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Shop}/{action=Index}/{id?}");
