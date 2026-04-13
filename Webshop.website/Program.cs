@@ -1,3 +1,4 @@
+using DotNetEnv.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Application.Repositories;
@@ -9,6 +10,8 @@ using Webshop.Infrastructure.Repositories;
 using Webshop.website.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+// Load environment variables from the .env file
+builder.Configuration.AddDotNetEnv("../");
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -50,6 +53,18 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddHttpContextAccessor(); // Voor toegang tot HttpContext in services
+var authGoogle = builder.Configuration.GetSection("Authentication:Google");
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies";
+        options.DefaultChallengeScheme = "oidc";
+    })
+    .AddCookie("Cookies")
+    .AddGoogle("oidc", options =>
+    {
+        options.ClientId = authGoogle["ClientId"]!;
+        options.ClientSecret = authGoogle["ClientSecret"]!;
+    });
 // Named HttpClient for Stock Web API
 builder.Services.AddHttpClient("StockApi", client =>
 {

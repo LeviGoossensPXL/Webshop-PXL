@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Webshop.website.ViewModels;
 using Webshop.Application.Services.Contracts;
 
@@ -6,7 +6,6 @@ namespace Webshop.website.Controllers
 {
     public class AccountController : Controller
     {
-
         private readonly IIdentityService _identityService;
 
         public AccountController(IIdentityService identityService)
@@ -100,6 +99,27 @@ namespace Webshop.website.Controllers
 
             return RedirectToAction("Index", "Shop");
         }
-       
+
+        public IActionResult GoogleLogin()
+        {
+            var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
+            return new ChallengeResult("oidc", properties);
+        }
+
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await _identityService.GoogleResponse();
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+                return RedirectToAction("Login");
+            }
+
+            return RedirectToAction("Index", "Shop");
+        }
     }
 }

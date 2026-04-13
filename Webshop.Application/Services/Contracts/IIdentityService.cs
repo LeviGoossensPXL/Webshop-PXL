@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Webshop.Application.Results;
 
 namespace Webshop.Application.Services.Contracts
@@ -14,5 +15,7 @@ namespace Webshop.Application.Services.Contracts
         Task SignOutAsync();
 
         Task<IdentityRegisterResult> RegisterAsync(string email, string password);
+        public AuthenticationProperties GoogleLogin(string redirectUrl);
+        public Task<GoogleResponseResult> GoogleResponse();
     }
 }

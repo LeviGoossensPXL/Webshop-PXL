@@ -8,6 +8,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
+      - Authentication__Google__ClientId=$Authentication__Google__ClientId
+      - Authentication__Google__ClientSecret=$Authentication__Google__ClientSecret
       - StockApi__BaseUrl=http://webshop.webapi:8080
     networks:
       - webshop-network
