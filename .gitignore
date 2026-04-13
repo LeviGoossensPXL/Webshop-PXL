@@ -367,3 +367,7 @@ Webshop.MVC/wwwroot/images/*
 
 # ignore jetbrains IDE
 .idea
+
+# ignore environment variables
+*.env
+!*.example.env
