@@ -93,7 +93,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultChallengeScheme = "oidc";
     })
     .AddCookie("Cookies")
-    .AddGoogle("oidc", options =>
+    .AddGoogle("google", options =>
     {
         options.ClientId = authGoogle["ClientId"]!;
         options.ClientSecret = authGoogle["ClientSecret"]!;

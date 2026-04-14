@@ -103,7 +103,7 @@ namespace Webshop.website.Controllers
         public IActionResult GoogleLogin()
         {
             var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
-            return new ChallengeResult("oidc", properties);
+            return new ChallengeResult("google", properties);
         }
 
         public async Task<IActionResult> GoogleResponse()
