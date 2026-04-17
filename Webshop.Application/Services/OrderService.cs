@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Webshop.Application.Repositories;
@@ -13,10 +15,12 @@ namespace Webshop.Application.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public OrderService(IOrderRepository orderRepository)
+        public OrderService(IOrderRepository orderRepository, IHttpClientFactory httpClientFactory)
         {
             _orderRepository = orderRepository;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<ServiceResultOfT<IEnumerable<Order>>> GetAll()
@@ -88,17 +92,38 @@ namespace Webshop.Application.Services
         public async Task<ServiceResult> UpdateOrderStatus(int orderId, int newStatus)
         {
             var result = new ServiceResult();
-            // safely fetch the order and update its status within the service layer to prevent direct entity manipulation in controllers
             var order = await _orderRepository.GetById(orderId);
             if (order == null)
             {
                 result.Failed("Order not found. Status update failed.");
                 return result;
             }
-            order.Status = (OrderStatus)newStatus;
+
+            var oldStatus = order.Status;
+            var newOrderStatus = (OrderStatus)newStatus;
+
+            order.Status = newOrderStatus;
             await _orderRepository.Update(order);
+
+            // If order is being cancelled and it wasn't already cancelled, restore stock
+            if (newOrderStatus == OrderStatus.Cancelled && oldStatus != OrderStatus.Cancelled)
+            {
+                try
+                {
+                    var client = _httpClientFactory.CreateClient("StockApi");
+                    foreach (var line in order.OrderLines)
+                    {
+                        await client.PutAsJsonAsync($"/StockItem/product/{line.ProductId}/add", line.Quantity);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Stock API restore failed: {ex.Message}");
+                }
+            }
 
             return result;
         }
     }
 }
+

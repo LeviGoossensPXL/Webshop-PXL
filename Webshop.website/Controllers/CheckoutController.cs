@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -112,9 +112,12 @@ namespace Webshop.website.Controllers
 
         // POST: Checkout/ProcessPayment
         [HttpPost]
-        public IActionResult ProcessPayment(int orderId)
+        public async Task<IActionResult> ProcessPayment(int orderId)
         {
-            // Empty the shopping cart using the service cleanly
+            // Payment confirmed — now reduce stock and update order status
+            await _checkoutService.ConfirmPaymentAsync(orderId);
+
+            // Empty the shopping cart
             _cartService.ClearCart();
 
             return View("PaymentSuccess", orderId);

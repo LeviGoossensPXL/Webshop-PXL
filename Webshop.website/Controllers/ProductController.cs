@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
+using System.Net.Http.Json;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
@@ -14,11 +15,13 @@ namespace Webshop.website.Controllers
     {
         private readonly IProductService _productService;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductController(IProductService productService, ICategoryRepository categoryRepository)
+        public ProductController(IProductService productService, ICategoryRepository categoryRepository, IHttpClientFactory httpClientFactory)
         {
             _productService = productService;
             _categoryRepository = categoryRepository;
+            _httpClientFactory = httpClientFactory;
         }
 
         // GET: Product (GetAll)
@@ -101,6 +104,25 @@ namespace Webshop.website.Controllers
                 var result = await _productService.Add(product, model.ImageUrl);
                 if (result.Succeeded)
                 {
+                    // Create stock entry in the Stock Web API
+                    try
+                    {
+                        var client = _httpClientFactory.CreateClient("StockApi");
+                        var stockItem = new StockItem
+                        {
+                            ProductId = product.ProductId,
+                            Quantity = model.InitialStock,
+                            Sku = product.Sku ?? "NO-SKU",
+                            WarehouseLocation = string.IsNullOrWhiteSpace(model.WarehouseLocation) ? "Default Warehouse" : model.WarehouseLocation
+                        };
+                        await client.PostAsJsonAsync("/StockItem", stockItem);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log but don't block — product is already saved
+                        Console.WriteLine($"Stock API call failed: {ex.Message}");
+                    }
+
                     return RedirectToAction("Index");
                 }
 
@@ -200,6 +222,18 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _productService.Delete(id);
+
+            // Also delete the stock entry from the Stock Web API
+            try
+            {
+                var client = _httpClientFactory.CreateClient("StockApi");
+                await client.DeleteAsync($"/StockItem/product/{id}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Stock API delete failed: {ex.Message}");
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

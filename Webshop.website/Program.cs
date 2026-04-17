@@ -27,6 +27,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddServerSideBlazor(); // Enable Blazor Server services 
 
 // add openid connect scheme alongside the existing local identity schemes
 builder.Services.AddAuthentication()
@@ -65,7 +66,7 @@ builder.Services.AddAuthentication()
 
 // Register application services and repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
+
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -98,6 +99,13 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = authGoogle["ClientId"]!;
         options.ClientSecret = authGoogle["ClientSecret"]!;
     });
+// Named HttpClient for Stock Web API
+builder.Services.AddHttpClient("StockApi", client =>
+{
+    // In Docker: http://webshop.webapi:8080, locally: http://localhost:8078
+    var stockApiUrl = builder.Configuration["StockApi:BaseUrl"] ?? "http://localhost:8078";
+    client.BaseAddress = new Uri(stockApiUrl);
+});
 
 var app = builder.Build();
 
@@ -116,11 +124,10 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -128,6 +135,7 @@ app.UseSession(); // MOET V��R UseAuthorization staan
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapBlazorHub(); // Map Blazor Server Hub (Open the connection for Blazor Server communication)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Shop}/{action=Index}/{id?}");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +10,6 @@ namespace Webshop.Application.Services.Contracts
     public interface ICheckoutService
     {
         Task<int> ProcessOrderAsync(Address deliveryAddress, string userId);
+        Task ConfirmPaymentAsync(int orderId);
     }
 }

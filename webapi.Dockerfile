@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["WebApi.webapi/WebApi.webapi.csproj", "WebApi.webapi/"]
+COPY ["Webshop.Domain/Webshop.Domain.csproj", "Webshop.Domain/"]
 #install packages
 RUN dotnet restore "./WebApi.webapi/WebApi.webapi.csproj"
 COPY . .

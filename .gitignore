@@ -364,6 +364,8 @@ FodyWeavers.xsd
 # Ignore product images but keep the default one
 Webshop.MVC/wwwroot/images/*
 !Webshop.MVC/wwwroot/images/default.jpg
+Webshop.website/wwwroot/images/*
+!Webshop.website/wwwroot/images/default.jpg
 
 # ignore jetbrains IDE
 .idea
