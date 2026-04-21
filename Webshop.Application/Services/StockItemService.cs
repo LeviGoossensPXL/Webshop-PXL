@@ -1,5 +1,6 @@
 using Webshop.Application.Repositories;
 using Webshop.Application.Results;
+using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 
 namespace Webshop.Application.Services;
