@@ -1,47 +1,51 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
-        private readonly IOrderService _orderService;
-        private readonly IProductService _productService;
-        private const string CartSessionKey = "ShoppingCart";
+        private readonly ICheckoutService _checkoutService;
+        private readonly ICartService _cartService;
 
-        public CheckoutController(IOrderService orderService, IProductService productService)
+        public CheckoutController(ICheckoutService checkoutService, ICartService cartService)
         {
-            _orderService = orderService;
-            _productService = productService;
+            _checkoutService = checkoutService;
+            _cartService = cartService;
         }
 
-        // GET: Checkout/Index (Show the address form)
+        // GET: Checkout/Index
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var cart = GetCartFromSession();
+            var cart = _cartService.GetCart();
 
-            // If cart is empty, send back to shop
             if (!cart.Items.Any())
             {
                 return RedirectToAction("Index", "Shop");
             }
 
-            foreach (var item in cart.Items)
+            // Map Domain cart to ViewModel
+            var cartVm = new CartViewModel
             {
-                if (string.IsNullOrEmpty(item.ProductName))
+                Items = cart.Items.Select(i => new CartItemViewModel
                 {
-                    var product = await _productService.GetById(item.ProductId);
-                    item.ProductName = product?.Name ?? "Unknown Product";
-                }
-            }
-            SaveCartToSession(cart);
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    UnitPrice = i.UnitPrice,
+                    Quantity = i.Quantity,
+                    ImageUrl = i.ImageUrl
+                }).ToList()
+            };
 
-            ViewBag.Cart = cart;
-            ViewBag.UserName = "GuestCustomer";
+            ViewBag.Cart = cartVm;
+            ViewBag.UserName = User.Identity?.Name ?? "GuestCustomer";
 
             return View(new OrderCreateViewModel());
         }
@@ -49,77 +53,81 @@ namespace Webshop.website.Controllers
         [HttpPost]
         public IActionResult UpdateQuantity(int productId, int change)
         {
-            var cart = GetCartFromSession();
-            var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-
-            if (item != null)
-            {
-                item.Quantity += change;
-                if (item.Quantity <= 0)
-                {
-                    cart.Items.Remove(item);
-                }
-                SaveCartToSession(cart);
-            }
-
+            _cartService.UpdateQuantity(productId, change);
             return RedirectToAction("Index");
         }
 
-        // POST: Checkout/Process (Save the order to database)
+        // POST: Checkout/Process
         [HttpPost]
         public async Task<IActionResult> Process(OrderCreateViewModel model)
         {
-            var cart = GetCartFromSession();
+            var cart = _cartService.GetCart();
             if (!cart.Items.Any()) return RedirectToAction("Index", "Shop");
 
             if (ModelState.IsValid)
             {
-                // Create the real Order with products inside!
-                var order = new Order
+                // Map ViewModel to Domain Entity before sending to Application layer
+                var address = new Address
                 {
-                    UserId = "GuestCustomer", // When we add login later, we change this to real UserId
-                    OrderDate = DateTime.UtcNow,
-                    Status = OrderStatus.Pending,
-                    DeliveryAddress = new Address
-                    {
-                        Street = model.Street,
-                        HouseNumber = model.HouseNumber,
-                        City = model.City,
-                        ZipCode = model.PostalCode,
-                        Country = model.Country
-                    },
-                    // Convert Cart Items to OrderLines
-                    OrderLines = cart.Items.Select(item => new OrderLine
-                    {
-                        ProductId = item.ProductId,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice
-                    }).ToList()
+                    Street = model.Street,
+                    HouseNumber = model.HouseNumber,
+                    City = model.City,
+                    ZipCode = model.PostalCode,
+                    Country = model.Country
                 };
 
-               
-                await _orderService.Add(order);
+                string userId = User.Identity?.Name ?? "GuestCustomer";
 
-                // Empty the shopping cart after successful order
-                HttpContext.Session.Remove(CartSessionKey);
+                // Process the order via the new CheckoutService
+                int orderId = await _checkoutService.ProcessOrderAsync(address, userId);
 
-                
-                return View("Success", order.OrderId);
+                return RedirectToAction("Payment", new { orderId = orderId });
             }
-            ViewBag.Cart = cart;
-            ViewBag.UserName = "GuestCustomer";
-            
+
+            // If mapping fails, rebuild the cart view
+            var cartVm = new CartViewModel
+            {
+                Items = cart.Items.Select(i => new CartItemViewModel
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    UnitPrice = i.UnitPrice,
+                    Quantity = i.Quantity,
+                    ImageUrl = i.ImageUrl
+                }).ToList()
+            };
+
+            ViewBag.Cart = cartVm;
+            ViewBag.UserName = User.Identity?.Name ?? "GuestCustomer";
             return View("Index", model);
         }
 
-        private CartViewModel GetCartFromSession()
+        // GET: Checkout/Payment
+        [HttpGet]
+        public IActionResult Payment(int orderId)
         {
-            var sessionData = HttpContext.Session.GetString(CartSessionKey);
-            return string.IsNullOrEmpty(sessionData) ? new CartViewModel() : JsonSerializer.Deserialize<CartViewModel>(sessionData) ?? new CartViewModel();
+            ViewBag.OrderId = orderId;
+            return View();
         }
-        private void SaveCartToSession(CartViewModel cart)
+
+        // POST: Checkout/ProcessPayment
+        [HttpPost]
+        public async Task<IActionResult> ProcessPayment(int orderId)
         {
-            HttpContext.Session.SetString(CartSessionKey, JsonSerializer.Serialize(cart));
+            // Payment confirmed — now reduce stock and update order status
+            await _checkoutService.ConfirmPaymentAsync(orderId);
+
+            // Empty the shopping cart
+            _cartService.ClearCart();
+
+            return View("PaymentSuccess", orderId);
+        }
+
+        // GET: Checkout/Success
+        [HttpGet]
+        public IActionResult Success(int orderId)
+        {
+            return View(orderId);
         }
     }
 }
