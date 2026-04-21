@@ -12,5 +12,5 @@ public interface IStockItemService
     Task<ServiceResultOfT<StockItem>> GetByProductId(int id);
     Task<ServiceResult> Add(StockItem stockItem);
     Task<ServiceResult> Update(StockItem stockItem);
-    Task<ServiceResult> Delete(int id);
+    Task<ServiceResult> DeleteByProductId(int id);
 }

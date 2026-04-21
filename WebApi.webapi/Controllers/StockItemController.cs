@@ -173,6 +173,18 @@ namespace WebApi.Controllers
 
             return Ok($"Stock for ProductId {productId} deleted.");
         }
+
+        // DELETE: /StockItem/product/{productId}
+        [HttpDelete("product1/{productId}")]
+        public async Task<IActionResult> DeleteByProductId1(int productId)
+        {
+            var result = await _stockItemService.DeleteByProductId(productId);
+            if (!result.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+            return Ok($"Stock for ProductId {productId} deleted.");
+        }
     }
 }
 

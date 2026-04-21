@@ -66,8 +66,20 @@ public class StockItemService : IStockItemService
         throw new NotImplementedException();
     }
 
-    public Task<ServiceResult> Delete(int id)
+    public async Task<ServiceResult> DeleteByProductId(int productId)
     {
-        throw new NotImplementedException();
+        var result = new ServiceResult();
+
+        var stockItems = await _stockItemRepository.GetAll();
+        var existingStockItem = stockItems.FirstOrDefault(x => x.ProductId == productId);
+
+        if (existingStockItem == null)
+        {
+            result.Failed($"No stock found for ProductId {productId}");
+            return result;
+        }
+
+        await _stockItemRepository.Delete(existingStockItem.StockItemId);
+        return result;
     }
 }
