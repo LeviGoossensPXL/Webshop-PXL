@@ -49,6 +49,18 @@ namespace WebApi.Controllers
             return Ok(stock);
         }
 
+        // GET: /StockItem/product/{productId}
+        [HttpGet("product1/{productId}")]
+        public async Task<IActionResult> GetByProductId1(int productId)
+        {
+            var result = await _stockItemService.GetByProductId(productId);
+            if (!result.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+            return Ok(result.Data);
+        }
+
         // POST: /StockItem
         [HttpPost]
         public async Task<IActionResult> CreateStock([FromBody] StockItem stockItem)

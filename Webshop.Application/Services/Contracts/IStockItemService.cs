@@ -9,6 +9,7 @@ public interface IStockItemService
 {
     Task<ServiceResultOfT<IEnumerable<StockItem>>> GetAll();
     Task<ServiceResultOfT<StockItem>> GetById(int id);
+    Task<ServiceResultOfT<StockItem>> GetByProductId(int id);
     Task<ServiceResult> Add(StockItem stockItem);
     Task<ServiceResult> Update(StockItem stockItem);
     Task<ServiceResult> Delete(int id);

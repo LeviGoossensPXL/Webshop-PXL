@@ -28,6 +28,22 @@ public class StockItemService : IStockItemService
         throw new NotImplementedException();
     }
 
+    public async Task<ServiceResultOfT<StockItem>> GetByProductId(int id)
+    {
+        var result = new ServiceResultOfT<StockItem>();
+        var stockItems = await _stockItemRepository.GetAll();
+        var stockItem = stockItems.FirstOrDefault(x => x.ProductId == id);
+
+        if (stockItem == null)
+        {
+            result.Failed("StockItem not found.");
+            return result;
+        }
+
+        result.Data = stockItem;
+        return result;
+    }
+
     public Task<ServiceResult> Add(StockItem stockItem)
     {
         throw new NotImplementedException();
