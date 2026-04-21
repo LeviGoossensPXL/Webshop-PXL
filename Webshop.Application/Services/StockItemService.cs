@@ -13,4 +13,29 @@ public class StockItemService : IStockItemService
     {
         _stockItemRepository = stockItemRepository;
     }
+
+    public Task<ServiceResultOfT<IEnumerable<StockItem>>> GetAll()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResultOfT<StockItem>> GetById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResult> Add(StockItem stockItem)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResult> Update(StockItem stockItem)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResult> Delete(int id)
+    {
+        throw new NotImplementedException();
+    }
 }
