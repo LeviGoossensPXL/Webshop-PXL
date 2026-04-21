@@ -14,13 +14,13 @@ namespace Webshop.website.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryService _categoryService;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductController(IProductService productService, ICategoryRepository categoryRepository, IHttpClientFactory httpClientFactory)
+        public ProductController(IProductService productService, ICategoryService categoryService, IHttpClientFactory httpClientFactory)
         {
             _productService = productService;
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
             _httpClientFactory = httpClientFactory;
         }
 
@@ -29,7 +29,7 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Index(int? categoryId)
         {
             var result = await _productService.GetAll(categoryId);
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
 
              
             // Map Domain Entities to ViewModels
@@ -79,7 +79,7 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Create()
         {
             // Get categories for the dropdown menu
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name");
 
             return View();
@@ -130,7 +130,7 @@ namespace Webshop.website.Controllers
             }
 
             // If there is a validation error, reload the categories and show the form again
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name");
             return View(model);
         }
@@ -157,7 +157,7 @@ namespace Webshop.website.Controllers
             };
 
             // Get categories for the dropdown menu
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name");
 
             return View(model);
@@ -190,7 +190,7 @@ namespace Webshop.website.Controllers
             }
 
             // If error, reload categories for the dropdown
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name");
             return View(model);
         }

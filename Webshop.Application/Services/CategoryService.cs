@@ -18,27 +18,27 @@ namespace Webshop.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetAll()
         {
             return await _categoryRepository.GetAll();
         }
 
-        public async Task<Category?> GetCategoryByIdAsync(int id)
+        public async Task<Category?> GetById(int id)
         {
             return await _categoryRepository.GetById(id);
         }
 
-        public async Task AddCategoryAsync(Category category)
+        public async Task Add(Category category)
         {
             await _categoryRepository.Add(category);
         }
 
-        public async Task UpdateCategoryAsync(Category category)
+        public async Task Update(Category category)
         {
             await _categoryRepository.Update(category);
         }
 
-        public async Task DeleteCategoryAsync(int id)
+        public async Task Delete(int id)
         {
             await _categoryRepository.Delete(id);
         }

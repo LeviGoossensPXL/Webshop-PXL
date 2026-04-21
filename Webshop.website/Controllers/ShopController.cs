@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Webshop.Application.Repositories;
+using Webshop.Application.Services.Contracts;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -8,12 +9,12 @@ namespace Webshop.website.Controllers
     public class ShopController : Controller
     {
         private readonly IProductRepository _productRepository;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryService _categoryService;
 
-        public ShopController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ShopController(IProductRepository productRepository, ICategoryService categoryService)
         {
             _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
@@ -21,7 +22,7 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Index(int? categoryId)
         {
             var products = await _productRepository.GetAll();
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
 
             // Filter products if a specific category is selected
             if (categoryId.HasValue && categoryId > 0)
@@ -53,7 +54,7 @@ namespace Webshop.website.Controllers
             var product = await _productRepository.GetById(id);
             if (product == null) return NotFound();
 
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
 
             var viewModel = new ProductDetailViewModel
             {

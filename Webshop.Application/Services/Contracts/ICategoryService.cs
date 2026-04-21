@@ -9,10 +9,10 @@ namespace Webshop.Application.Services.Contracts
 {
     public interface ICategoryService
     {
-        Task<IEnumerable<Category>> GetAllCategoriesAsync();
-        Task<Category?> GetCategoryByIdAsync(int id);
-        Task AddCategoryAsync(Category category);
-        Task UpdateCategoryAsync(Category category);
-        Task DeleteCategoryAsync(int id);
+        Task<IEnumerable<Category>> GetAll();
+        Task<Category?> GetById(int id);
+        Task Add(Category category);
+        Task Update(Category category);
+        Task Delete(int id);
     }
 }

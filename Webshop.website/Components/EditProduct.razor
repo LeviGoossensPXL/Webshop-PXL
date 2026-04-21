@@ -5,7 +5,7 @@
 @using System.IO
 
 @inject IProductService ProductService
-@inject ICategoryRepository CategoryRepository
+@inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 @inject IWebHostEnvironment Environment
 
@@ -93,7 +93,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await CategoryRepository.GetAll();
+        categories = await CategoryService.GetAll();
 
         var result = await ProductService.GetById(ProductId);
         if (result.Succeeded && result.Data != null)
