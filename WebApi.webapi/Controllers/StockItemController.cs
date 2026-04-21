@@ -83,6 +83,25 @@ namespace WebApi.Controllers
             return Ok(stockItem);
         }
 
+        // POST: /StockItem
+        [HttpPost("/StockItem1")]
+        public async Task<IActionResult> CreateStock1([FromBody] StockItem stockItem)
+        {
+            if (stockItem == null)
+            {
+                return BadRequest("Stock data is empty.");
+            }
+
+            // Check if stock for this product already exists
+            var result = await _stockItemService.Add(stockItem);
+            if (!result.Succeeded)
+            {
+                return Conflict($"Stock already exists for ProductId {stockItem.ProductId}");
+            }
+
+            return Ok(stockItem);
+        }
+
         // PUT: /StockItem/product/{productId}/reduce
         // Reduces stock quantity (e.g., when an order is placed)
         [HttpPut("product/{productId}/reduce")]

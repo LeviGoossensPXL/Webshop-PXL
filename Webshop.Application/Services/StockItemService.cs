@@ -44,9 +44,21 @@ public class StockItemService : IStockItemService
         return result;
     }
 
-    public Task<ServiceResult> Add(StockItem stockItem)
+    public async Task<ServiceResult> Add(StockItem stockItem)
     {
-        throw new NotImplementedException();
+        var result = new ServiceResult();
+
+        var stockItems = await _stockItemRepository.GetAll();
+        var existingStockItem = stockItems.FirstOrDefault(x => x.ProductId == stockItem.ProductId);
+
+        if (existingStockItem != null)
+        {
+            result.Failed($"Stock already exists for ProductId {stockItem.ProductId}");
+            return result;
+        }
+
+        await _stockItemRepository.Add(stockItem);
+        return result;
     }
 
     public Task<ServiceResult> Update(StockItem stockItem)
