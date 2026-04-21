@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Domain.Entities;
 using WebApi.Data;
+using Webshop.Application.Services.Contracts;
 
 namespace WebApi.Controllers
 {
@@ -11,11 +12,13 @@ namespace WebApi.Controllers
     {
         private readonly ILogger<StockItemController> _logger;
         private readonly AppDbContext _context;
+        private readonly IStockItemService _stockItemService;
 
-        public StockItemController(ILogger<StockItemController> logger, AppDbContext context)
+        public StockItemController(ILogger<StockItemController> logger, AppDbContext context, IStockItemService stockItemService)
         {
             _logger = logger;
             _context = context;
+            _stockItemService = stockItemService;
         }
 
         // GET: /StockItem
@@ -24,6 +27,14 @@ namespace WebApi.Controllers
         {
             var stocks = await _context.StockItems.ToListAsync();
             return Ok(stocks);
+        }
+
+        // GET: /StockItem
+        [HttpGet("/StockItem1")]
+        public async Task<IActionResult> GetAll1()
+        {
+            var result = await _stockItemService.GetAll();
+            return Ok(result.Data);
         }
 
         // GET: /StockItem/product/{productId}

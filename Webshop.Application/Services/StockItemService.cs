@@ -14,9 +14,13 @@ public class StockItemService : IStockItemService
         _stockItemRepository = stockItemRepository;
     }
 
-    public Task<ServiceResultOfT<IEnumerable<StockItem>>> GetAll()
+    public async Task<ServiceResultOfT<IEnumerable<StockItem>>> GetAll()
     {
-        throw new NotImplementedException();
+        var result = new ServiceResultOfT<IEnumerable<StockItem>>();
+        var stocks = await _stockItemRepository.GetAll();
+
+        result.Data = stocks;
+        return result;
     }
 
     public Task<ServiceResultOfT<StockItem>> GetById(int id)
