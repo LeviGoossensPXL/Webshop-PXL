@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using System.Net.Http.Json;
-using Webshop.Application.Repositories;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;

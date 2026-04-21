@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Webshop.Application.Repositories;
 using Webshop.Application.Services.Contracts;
+using Webshop.Domain.Entities;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -8,12 +8,12 @@ namespace Webshop.website.Controllers
     // This controller is for the customer side
     public class ShopController : Controller
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
 
-        public ShopController(IProductRepository productRepository, ICategoryService categoryService)
+        public ShopController(IProductService productService, ICategoryService categoryService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
             _categoryService = categoryService;
         }
 
@@ -21,14 +21,11 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productRepository.GetAll();
+            var productResult = await _productService.GetAll();
             var categories = await _categoryService.GetAll();
 
             // Filter products if a specific category is selected
-            if (categoryId.HasValue && categoryId > 0)
-            {
-                products = products.Where(p => p.CategoryId == categoryId.Value);
-            }
+            var products = productResult.Data ?? new List<Product>();
 
             var viewModelList = products.Select(p => new ProductListViewModel
             {
@@ -51,10 +48,11 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productRepository.GetById(id);
-            if (product == null) return NotFound();
+            var productResult = await _productService.GetById(id);
+            if (productResult == null || !productResult.Succeeded) return NotFound();
 
             var categories = await _categoryService.GetAll();
+            var product = productResult.Data;
 
             var viewModel = new ProductDetailViewModel
             {
