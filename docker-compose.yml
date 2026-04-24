@@ -84,11 +84,15 @@ services:
       dockerfile: Duende.Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
+      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
     ports:
-      - "5001:5001"
+      - "5001:8080"
     networks:
       - webshop-network
+    depends_on:
+      webshop.database:
+        condition: service_healthy
+
 volumes:
   webshop-db:
   webapi-db:
