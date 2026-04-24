@@ -76,6 +76,19 @@ services:
       timeout: 5s
       retries: 10
 
+  webshop.identityserver:
+    image: docker.io/darklord200/identity-server:latest
+    container_name: webshop.identityserver
+    build:
+      context: .
+      dockerfile: Duende.Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AppConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
+    ports:
+      - "5001:5001"
+    networks:
+      - webshop-network
 volumes:
   webshop-db:
   webapi-db:
