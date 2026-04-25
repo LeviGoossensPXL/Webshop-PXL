@@ -51,7 +51,7 @@ namespace WebApi.Controllers
         }
 
         // GET: /StockItem/product/{productId}
-        [HttpGet("product1/{productId}")]
+        [HttpGet("/StockItem1/product/{productId}")]
         public async Task<IActionResult> GetByProductId1(int productId)
         {
             var result = await _stockItemService.GetByProductId(productId);
@@ -184,7 +184,7 @@ namespace WebApi.Controllers
         }
 
         // DELETE: /StockItem/product/{productId}
-        [HttpDelete("product1/{productId}")]
+        [HttpDelete("/StockItem1/product/{productId}")]
         public async Task<IActionResult> DeleteByProductId1(int productId)
         {
             var result = await _stockItemService.DeleteByProductId(productId);
@@ -208,7 +208,7 @@ namespace WebApi.Controllers
         }
 
         // PUT: /StockItem/product/{productId}/reduce
-        [HttpPut("product1/{productId}/reduce")]
+        [HttpPut("/StockItem1/product/{productId}/reduce")]
         public async Task<IActionResult> ReduceStock1(int productId, [FromBody] int quantity)
         {
             var getResult = await _stockItemService.GetByProductId(productId);
@@ -234,7 +234,7 @@ namespace WebApi.Controllers
         }
 
         // PUT: /StockItem/product/{productId}/add
-        [HttpPut("product1/{productId}/add")]
+        [HttpPut("/StockItem1/product/{productId}/add")]
         public async Task<IActionResult> AddStock1(int productId, [FromBody] int quantity)
         {
             var getResult = await _stockItemService.GetByProductId(productId);
@@ -255,7 +255,7 @@ namespace WebApi.Controllers
         }
 
         // PUT: /StockItem/product/{productId}/set
-        [HttpPut("product1/{productId}/set")]
+        [HttpPut("/StockItem1/product/{productId}/set")]
         public async Task<IActionResult> SetStock1(int productId, [FromBody] int quantity)
         {
             var getResult = await _stockItemService.GetByProductId(productId);
