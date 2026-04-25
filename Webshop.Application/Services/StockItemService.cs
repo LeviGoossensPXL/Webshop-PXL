@@ -23,9 +23,19 @@ public class StockItemService : IStockItemService
         return result;
     }
 
-    public Task<ServiceResultOfT<StockItem>> GetById(int id)
+    public async Task<ServiceResultOfT<StockItem>> GetById(int id)
     {
-        throw new NotImplementedException();
+        var result = new ServiceResultOfT<StockItem>();
+        var stockItem = await _stockItemRepository.GetById(id);
+
+        if (stockItem == null)
+        {
+            result.Failed("StockItem not found.");
+            return result;
+        }
+
+        result.Data = stockItem;
+        return result;
     }
 
     public async Task<ServiceResultOfT<StockItem>> GetByProductId(int id)
@@ -61,9 +71,19 @@ public class StockItemService : IStockItemService
         return result;
     }
 
-    public Task<ServiceResult> Update(StockItem stockItem)
+    public async Task<ServiceResult> Update(StockItem stockItem)
     {
-        throw new NotImplementedException();
+        var result = new ServiceResult();
+        var existing = await _stockItemRepository.GetById(stockItem.StockItemId);
+
+        if (existing == null)
+        {
+            result.Failed($"StockItem with id {stockItem.StockItemId} not found.");
+            return result;
+        }
+
+        await _stockItemRepository.Update(stockItem);
+        return result;
     }
 
     public async Task<ServiceResult> DeleteByProductId(int productId)

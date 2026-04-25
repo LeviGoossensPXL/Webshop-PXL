@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Domain.Entities;
 using WebApi.Data;
+using WebApi.Dtos;
 using Webshop.Application.Services.Contracts;
 
 namespace WebApi.Controllers
@@ -85,12 +86,20 @@ namespace WebApi.Controllers
 
         // POST: /StockItem
         [HttpPost("/StockItem1")]
-        public async Task<IActionResult> CreateStock1([FromBody] StockItem stockItem)
+        public async Task<IActionResult> CreateStock1([FromBody] CreateStockItemDto createStockItem)
         {
-            if (stockItem == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Stock data is empty.");
+                return BadRequest(ModelState);
             }
+
+            StockItem stockItem = new StockItem()
+            {
+                Quantity = createStockItem.Quantity,
+                Sku = createStockItem.Sku,
+                WarehouseLocation = createStockItem.WarehouseLocation,
+                ProductId = createStockItem.ProductId
+            };
 
             // Check if stock for this product already exists
             var result = await _stockItemService.Add(stockItem);
@@ -184,6 +193,86 @@ namespace WebApi.Controllers
                 return NotFound($"No stock found for ProductId {productId}");
             }
             return Ok($"Stock for ProductId {productId} deleted.");
+        }
+
+        // GET: /StockItem/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _stockItemService.GetById(id);
+            if (!result.Succeeded)
+            {
+                return NotFound($"No stock found with id {id}");
+            }
+            return Ok(result.Data);
+        }
+
+        // PUT: /StockItem/product/{productId}/reduce
+        [HttpPut("product1/{productId}/reduce")]
+        public async Task<IActionResult> ReduceStock1(int productId, [FromBody] int quantity)
+        {
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+
+            var stock = getResult.Data;
+            if (stock.Quantity < quantity)
+            {
+                return BadRequest($"Insufficient stock. Available: {stock.Quantity}, Requested: {quantity}");
+            }
+
+            stock.Quantity -= quantity;
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
+
+            return Ok(stock);
+        }
+
+        // PUT: /StockItem/product/{productId}/add
+        [HttpPut("product1/{productId}/add")]
+        public async Task<IActionResult> AddStock1(int productId, [FromBody] int quantity)
+        {
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+
+            var stock = getResult.Data;
+            stock.Quantity += quantity;
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
+
+            return Ok(stock);
+        }
+
+        // PUT: /StockItem/product/{productId}/set
+        [HttpPut("product1/{productId}/set")]
+        public async Task<IActionResult> SetStock1(int productId, [FromBody] int quantity)
+        {
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+
+            var stock = getResult.Data;
+            stock.Quantity = quantity;
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
+
+            return Ok(stock);
         }
     }
 }
