@@ -23,13 +23,19 @@ namespace Webshop.website.Controllers
             var products = await _productRepository.GetAll();
             var categories = await _categoryRepository.GetAll();
 
-            // Filter products if a specific category is selected
+           
+            var sortedProducts = products
+                .OrderBy(p => p.CategoryId)
+                .ThenByDescending(p => p.ProductId)
+                .AsEnumerable();
+
+          
             if (categoryId.HasValue && categoryId > 0)
             {
-                products = products.Where(p => p.CategoryId == categoryId.Value);
+                sortedProducts = sortedProducts.Where(p => p.CategoryId == categoryId.Value);
             }
 
-            var viewModelList = products.Select(p => new ProductListViewModel
+            var viewModelList = sortedProducts.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
@@ -39,7 +45,6 @@ namespace Webshop.website.Controllers
                 CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
             }).ToList();
 
-            // Send data to the view for the category filter buttons
             ViewBag.Categories = categories;
             ViewBag.CurrentCategory = categoryId ?? 0;
 

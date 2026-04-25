@@ -31,16 +31,20 @@ namespace Webshop.website.Controllers
             var result = await _productService.GetAll(categoryId);
             var categories = await _categoryRepository.GetAll();
 
-             
-            // Map Domain Entities to ViewModels
-            var viewModelList = result.Data.Select(p => new ProductListViewModel
+
+            var sortedData = result.Data
+                .OrderBy(p => p.CategoryId)
+                .ThenByDescending(p => p.ProductId);
+
+            // Map Domain Entities to ViewModels (Using sorted data)
+            var viewModelList = sortedData.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
                 // If Category is not null, get its Name
-                CategoryName = categories.FirstOrDefault(c =>c.CategoryId ==p.CategoryId)?.Name ?? "Unknown",
+                CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown",
                 ImageUrl = p.ImageUrl
             }).ToList();
 
