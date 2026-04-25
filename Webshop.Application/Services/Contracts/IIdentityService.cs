@@ -17,5 +17,6 @@ namespace Webshop.Application.Services.Contracts
         Task<IdentityRegisterResult> RegisterAsync(string email, string password);
         public AuthenticationProperties GoogleLogin(string redirectUrl);
         public Task<GoogleResponseResult> GoogleResponse();
+        Task<bool> IsInRoleAsync(string email, string roleName);
     }
 }
