@@ -1,6 +1,6 @@
 services:
   webshop.website:
-    image: webapp
+    image: docker.io/darklord200/webapp:latest
     container_name: webshop.website
     build:
       context: .
@@ -41,7 +41,7 @@ services:
       retries: 10
 
   webshop.webapi:
-    image: webapi
+    image: docker.io/darklord200/webapi:latest
     container_name: webshop.webapi
     build:
       context: .
