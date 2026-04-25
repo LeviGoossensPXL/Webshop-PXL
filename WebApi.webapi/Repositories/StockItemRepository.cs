@@ -38,7 +38,7 @@ public class StockItemRepository : IStockItemRepository
 
         public async Task<StockItem?> GetById(int id)
         {
-            return await _context.StockItems
+            return await _context.StockItems.AsNoTracking()
                 .FirstOrDefaultAsync(stockItem => stockItem.StockItemId == id);
         }
 
