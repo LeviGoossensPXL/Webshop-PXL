@@ -34,12 +34,17 @@ namespace Webshop.website.Controllers
 
                 if (result.SignInResult != null && result.SignInResult.Succeeded)
                 {
+                    // If the user is an admin, redirect to Product; otherwise, redirect to Shop
+                    if (await _identityService.IsInRoleAsync(model.Email, "Admin"))
+                    {
+                        return RedirectToAction("Index", "Product");
+                    }
+
                     // If we have a safe return URL, send the user back there
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
                     }
-
                     // Otherwise, send them to the shop
                     return RedirectToAction("Index", "Shop");
                 }
@@ -102,7 +107,7 @@ namespace Webshop.website.Controllers
 
         public IActionResult GoogleLogin()
         {
-            var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
+            var properties = _identityService.GoogleLogin(Url.Action("PostLogin")!);
             return new ChallengeResult("google", properties);
         }
 
@@ -119,23 +124,39 @@ namespace Webshop.website.Controllers
                 return RedirectToAction("Login");
             }
 
-            return RedirectToAction("Index", "Shop");
+            return RedirectToAction("PostLogin");
         }
 
         [HttpGet]
         public IActionResult LoginWithDuende(string returnUrl = "/")
         {
-            // ensure the return url is safe and local to our application
-            var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
-
+          
             // build an absolute uri for the authentication properties to prevent request uri errors
             var properties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
-                RedirectUri = Url.Content($"~{safeReturnUrl}")
+                RedirectUri = Url.Action("PostLogin", new { returnUrl })
             };
 
             // challenge the oidc scheme to trigger the redirect to duende identityserver
             return Challenge(properties, "oidc");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PostLogin(string returnUrl = "/")
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Product");
+                }
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+            }
+            return RedirectToAction("Index", "Shop");
         }
     }
 }
