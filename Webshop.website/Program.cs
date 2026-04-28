@@ -61,7 +61,7 @@ builder.Services.AddHttpClient("StockApi", client =>
     // In Docker: http://webshop.webapi:8080, locally: http://localhost:8078
     var stockApiUrl = builder.Configuration["StockApi:BaseUrl"] ?? "http://localhost:8078";
     client.BaseAddress = new Uri(stockApiUrl);
-    client.DefaultRequestHeaders.Add("X-Api-Key", "api-key-value");
+    client.DefaultRequestHeaders.Add("X-Api-Key", builder.Configuration["WebApi:ApiKey"]);
 });
 
 var app = builder.Build();
