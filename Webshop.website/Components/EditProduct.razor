@@ -23,6 +23,13 @@
 			}
 			else
 			{
+				@if (!string.IsNullOrEmpty(errorMessage))
+				{
+					<div class="alert alert-danger" role="alert">
+						@errorMessage
+					</div>
+				}
+
 				<EditForm Model="@editModel" OnValidSubmit="HandleValidSubmit">
 					<DataAnnotationsValidator />
 
@@ -113,6 +120,7 @@
 	private ProductFormModel editModel;
 	private IEnumerable<Category> categories = new List<Category>();
 	private IBrowserFile? newImageFile;
+	private string errorMessage = string.Empty;
 
 	public class ProductFormModel
 	{
@@ -167,7 +175,7 @@
 			try
 			{
 				var client = HttpClientFactory.CreateClient("StockApi");
-				var stockItem = await client.GetFromJsonAsync<StockItem>($"/StockItem/{ProductId}");
+				var stockItem = await client.GetFromJsonAsync<StockItem>($"/StockItem/product/{ProductId}");
 				if (stockItem != null)
 				{
 					editModel.Quantity = stockItem.Quantity;
@@ -228,14 +236,28 @@
 				};
 
 				var client = HttpClientFactory.CreateClient("StockApi");
-				await client.PostAsJsonAsync("/StockItem", stockUpdate);
+				var response = await client.PutAsJsonAsync($"/StockItem/product/{this.ProductId}", stockUpdate);
+				if (!response.IsSuccessStatusCode)
+				{
+					var errorContent = await response.Content.ReadAsStringAsync();
+					errorMessage = $"PUT Error ({response.StatusCode}): {errorContent}";
+					Console.WriteLine(errorMessage);
+					// Try POST fallback
+					var postResponse = await client.PostAsJsonAsync("/StockItem", stockUpdate);
+					if (!postResponse.IsSuccessStatusCode)
+					{
+						errorMessage += $" | POST Error ({postResponse.StatusCode}): {await postResponse.Content.ReadAsStringAsync()}";
+						return; // Don't redirect if both fail
+					}
+				}
 
 				NavigationManager.NavigateTo("/Product", forceLoad: true);
 			}
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"ERROR (Update): {ex.Message}");
+			errorMessage = $"ERROR (Submit): {ex.Message}";
+			Console.WriteLine(errorMessage);
 		}
 	}
 }
