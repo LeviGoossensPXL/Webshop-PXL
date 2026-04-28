@@ -6,7 +6,7 @@ namespace WebApi
     [AttributeUsage(validOn: AttributeTargets.Class)]
     public class ApiKeyAttribute : Attribute, IAsyncActionFilter
     {
-        private const string APIKEYNAME = "ApiKey";
+        private const string APIKEYNAME = "X-Api-Key";
         public const string APIKEYVALUE = "api-key-value";
 
         private ContentResult GetContentResult(int statusCode, string content)
