@@ -3,10 +3,10 @@
 *@
 @{
 }
-@model Webshop.website.ViewModels.ProductUpdateViewModel
+@model int
 
 @{
     ViewData["Title"] = "Update Gear Info";
 }
 
-<component type="typeof(Webshop.website.Components.EditProduct)" render-mode="ServerPrerendered" param-ProductId="Model.Id" />
+<component type="typeof(Webshop.website.Components.EditProduct)" render-mode="ServerPrerendered" param-ProductId="Model" />

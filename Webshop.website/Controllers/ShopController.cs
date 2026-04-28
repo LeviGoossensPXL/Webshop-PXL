@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Webshop.Application.Services.Contracts;
-using Webshop.Domain.Entities;
+using Webshop.Application.Repositories;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -8,26 +7,35 @@ namespace Webshop.website.Controllers
     // This controller is for the customer side
     public class ShopController : Controller
     {
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ShopController(IProductService productService, ICategoryService categoryService)
+        public ShopController(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _productService = productService;
-            _categoryService = categoryService;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var productResult = await _productService.GetAll();
-            var categories = await _categoryService.GetAll();
+            var products = await _productRepository.GetAll();
+            var categories = await _categoryRepository.GetAll();
 
-            // Filter products if a specific category is selected
-            var products = productResult.Data ?? new List<Product>();
 
-            var viewModelList = products.Select(p => new ProductListViewModel
+            var sortedProducts = products
+                .OrderBy(p => p.CategoryId)
+                .ThenByDescending(p => p.ProductId)
+                .AsEnumerable();
+
+
+            if (categoryId.HasValue && categoryId > 0)
+            {
+                sortedProducts = sortedProducts.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            var viewModelList = sortedProducts.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
@@ -37,7 +45,6 @@ namespace Webshop.website.Controllers
                 CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
             }).ToList();
 
-            // Send data to the view for the category filter buttons
             ViewBag.Categories = categories;
             ViewBag.CurrentCategory = categoryId ?? 0;
 
@@ -48,11 +55,10 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var productResult = await _productService.GetById(id);
-            if (productResult == null || !productResult.Succeeded) return NotFound();
+            var product = await _productRepository.GetById(id);
+            if (product == null) return NotFound();
 
-            var categories = await _categoryService.GetAll();
-            var product = productResult.Data;
+            var categories = await _categoryRepository.GetAll();
 
             var viewModel = new ProductDetailViewModel
             {

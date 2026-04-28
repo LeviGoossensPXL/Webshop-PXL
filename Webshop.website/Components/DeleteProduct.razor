@@ -1,0 +1,88 @@
+﻿@using Webshop.Application.Services.Contracts
+@using Webshop.Domain.Entities
+@inject IProductService ProductService
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+
+<div class="container mt-5">
+	<div class="row justify-content-center">
+		<div class="col-md-5 text-center bg-white p-5 shadow rounded border-top border-danger border-4">
+			<h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i></h1>
+
+			@if (productName == null)
+			{
+				<p><em>Loading product details...</em></p>
+			}
+			else
+			{
+				<h3>Are you sure?</h3>
+				<p class="text-muted">You are about to delete <strong class="text-dark">@productName</strong>. This action cannot be undone.</p>
+
+				<div class="mt-4 d-flex justify-content-center gap-2">
+					<button @onclick="HandleDelete" class="btn btn-danger px-5" disabled="@isDeleting">
+						@if (isDeleting)
+						{
+							<span>Deleting...</span>
+						}
+						else
+						{
+
+							<span>Yes, Delete It</span>
+						}
+					</button>
+					<button @onclick='() => NavigationManager.NavigateTo("/Product", forceLoad: true)' class="btn btn-secondary px-5" disabled="@isDeleting">
+						No, Keep It
+					</button>
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter] public int ProductId { get; set; }
+	private string? productName;
+	private bool isDeleting = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await ProductService.GetById(ProductId);
+		if (result.Succeeded && result.Data != null)
+		{
+			productName = result.Data.Name;
+		}
+	}
+
+	private async Task HandleDelete()
+	{
+		isDeleting = true;
+		try
+		{
+			// 1. Delete from Webshop Database
+			var result = await ProductService.Delete(ProductId);
+
+			if (result.Succeeded)
+			{
+				// 2. Delete from Stock Web API
+				try
+				{
+					var client = HttpClientFactory.CreateClient("StockApi");
+					await client.DeleteAsync($"/StockItem/product/{ProductId}");
+				}
+				catch (Exception ex)
+				{
+					
+					Console.WriteLine($"Stock API delete failed: {ex.Message}");
+				}
+
+				// 3. Redirect back to list
+				NavigationManager.NavigateTo("/Product", forceLoad: true);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"ERROR (Delete): {ex.Message}");
+			isDeleting = false;
+		}
+	}
+}
