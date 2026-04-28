@@ -1,3 +1,4 @@
+using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebApi.Data;
@@ -8,6 +9,7 @@ using Webshop.Application.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddDotNetEnv("../");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

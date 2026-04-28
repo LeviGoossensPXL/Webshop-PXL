@@ -7,7 +7,6 @@ namespace WebApi
     public class ApiKeyAttribute : Attribute, IAsyncActionFilter
     {
         private const string APIKEYNAME = "X-Api-Key";
-        public const string APIKEYVALUE = "api-key-value";
 
         private ContentResult GetContentResult(int statusCode, string content)
         {
@@ -26,8 +25,9 @@ namespace WebApi
                     401, "Api Key was not provided");
                 return;
             }
+            var config = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
             var keyValue = extractedApiKey.ToString();
-            if(keyValue != APIKEYVALUE)
+            if(keyValue != config.GetValue<string>("WebApi:ApiKey"))
             {
                 context.Result = GetContentResult(
                     401, "Api Key value is not valid!");
