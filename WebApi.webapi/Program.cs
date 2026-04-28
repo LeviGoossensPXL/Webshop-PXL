@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using WebApi.Data;
 using WebApi.Repositories;
 using Webshop.Application.Repositories;
