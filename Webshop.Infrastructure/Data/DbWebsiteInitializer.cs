@@ -83,7 +83,8 @@ public static class DbWebsiteInitializer
         var result = await userManager.CreateAsync(SeedData.AdminUser, adminPassword);
         if (result.Succeeded)
         {
-            await userManager.AddToRoleAsync(SeedData.AdminUser, "Admin");
+            var createdUser = await userManager.FindByEmailAsync(SeedData.AdminUser.Email!);
+            await userManager.AddToRoleAsync(createdUser!, "Admin");
         }
     }
 }
