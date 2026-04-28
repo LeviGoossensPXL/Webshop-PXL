@@ -22,5 +22,7 @@ namespace Webshop.website.ViewModels
 
         // The formatted delivery address (Street + City + PostalCode together)
         public string FullAddress { get; set; } = string.Empty;
+
+        public List<OrderItemViewModel> Items { get; set; } = new List<OrderItemViewModel>();
     }
 }
