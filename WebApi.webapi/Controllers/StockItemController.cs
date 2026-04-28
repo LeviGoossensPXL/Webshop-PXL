@@ -60,6 +60,31 @@ namespace WebApi.Controllers
             return Ok(stockItem);
         }
 
+        // PUT: /StockItem/product/{productId}
+        // Updates a stock item completely
+        [HttpPut("product/{productId}")]
+        public async Task<IActionResult> UpdateStock(int productId, [FromBody] StockItem updatedStock)
+        {
+            if (updatedStock == null || productId != updatedStock.ProductId)
+            {
+                return BadRequest("Invalid stock data.");
+            }
+
+            var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
+            if (stock == null)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+
+            stock.Quantity = updatedStock.Quantity;
+            stock.WarehouseLocation = updatedStock.WarehouseLocation;
+            stock.Sku = updatedStock.Sku;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(stock);
+        }
+
         // PUT: /StockItem/product/{productId}/reduce
         // Reduces stock quantity (e.g., when an order is placed)
         [HttpPut("product/{productId}/reduce")]
