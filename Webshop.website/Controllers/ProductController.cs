@@ -25,7 +25,7 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Index(int? categoryId)
         {
             var result = await _productService.GetAll(categoryId);
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryService.GetAll();
 
             var sortedData = result.Data
                 .OrderBy(p => p.CategoryId)

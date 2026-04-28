@@ -5,7 +5,7 @@
 @using System.ComponentModel.DataAnnotations
 
 @inject IProductService ProductService
-@inject ICategoryRepository CategoryRepository
+@inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 
@@ -126,7 +126,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		categories = await CategoryRepository.GetAll();
+		categories = await CategoryService.GetAll();
 	}
 
 	private async Task HandleValidSubmit()
