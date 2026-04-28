@@ -1,4 +1,4 @@
-﻿
+
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
@@ -84,10 +84,18 @@
 							<span class="fs-4 fw-bold text-success">€ @Model.GrandTotal.ToString("F2")</span>
 						</div>
 
-						@* This button will go to the Checkout Controller later *@
-						<a asp-controller="Checkout" asp-action="Index" class="btn btn-success w-100 py-2 fs-5 fw-bold rounded-pill">
-							Proceed to Checkout <i class="bi bi-arrow-right-circle ms-2"></i>
-						</a>
+						@if (User.Identity != null && User.Identity.IsAuthenticated)
+						{
+							<a asp-controller="Checkout" asp-action="Index" class="btn btn-success w-100 py-2 fs-5 fw-bold rounded-pill">
+								Proceed to Checkout <i class="bi bi-arrow-right-circle ms-2"></i>
+							</a>
+						}
+						else
+						{
+							<a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "Checkout")" class="btn btn-warning w-100 py-2 fs-5 fw-bold rounded-pill text-dark">
+								Login to Checkout <i class="bi bi-box-arrow-in-right ms-2"></i>
+							</a>
+						}
 					</div>
 				</div>
 			</div>
