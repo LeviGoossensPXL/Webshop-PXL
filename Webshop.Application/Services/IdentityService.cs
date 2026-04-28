@@ -45,7 +45,13 @@ namespace Webshop.Application.Services
 
             return result;
         }
-        
+        public async Task<bool> IsInRoleAsync(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return false;
+            return await _userManager.IsInRoleAsync(user, roleName);
+        }
+
 
         public async Task<IdentitySignInResult> SignInAsync(string email, string password)
         {

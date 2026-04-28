@@ -77,6 +77,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Session configuration
 builder.Services.AddDistributedMemoryCache(); // Vereist voor session

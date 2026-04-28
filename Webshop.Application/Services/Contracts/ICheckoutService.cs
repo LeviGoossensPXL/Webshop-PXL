@@ -9,7 +9,6 @@ namespace Webshop.Application.Services.Contracts
 {
     public interface ICheckoutService
     {
-        Task<int> ProcessOrderAsync(Address deliveryAddress, string userId);
-        Task ConfirmPaymentAsync(int orderId);
+        Task<int> CreateOrderAndConfirmAsync(Address deliveryAddress, string userId);
     }
 }

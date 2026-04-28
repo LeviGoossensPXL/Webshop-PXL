@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Webshop.Domain.Entities;
 using WebApi.Data;
+using WebApi.Dtos;
+using Webshop.Application.Services.Contracts;
 
 namespace WebApi.Controllers
 {
@@ -11,125 +13,177 @@ namespace WebApi.Controllers
     {
         private readonly ILogger<StockItemController> _logger;
         private readonly AppDbContext _context;
+        private readonly IStockItemService _stockItemService;
 
-        public StockItemController(ILogger<StockItemController> logger, AppDbContext context)
+        public StockItemController(ILogger<StockItemController> logger, AppDbContext context, IStockItemService stockItemService)
         {
             _logger = logger;
             _context = context;
+            _stockItemService = stockItemService;
         }
 
         // GET: /StockItem
-        [HttpGet]
+        [HttpGet("/StockItem")]
         public async Task<IActionResult> GetAll()
         {
-            var stocks = await _context.StockItems.ToListAsync();
-            return Ok(stocks);
+            var result = await _stockItemService.GetAll();
+            return Ok(result.Data);
         }
 
         // GET: /StockItem/product/{productId}
-        [HttpGet("product/{productId}")]
+        [HttpGet("/StockItem/product/{productId}")]
         public async Task<IActionResult> GetByProductId(int productId)
         {
-            var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
-            if (stock == null)
+            var result = await _stockItemService.GetByProductId(productId);
+            if (!result.Succeeded)
             {
                 return NotFound($"No stock found for ProductId {productId}");
             }
-            return Ok(stock);
+            return Ok(result.Data);
         }
 
         // POST: /StockItem
-        [HttpPost]
-        public async Task<IActionResult> CreateStock([FromBody] StockItem stockItem)
+        [HttpPost("/StockItem")]
+        public async Task<IActionResult> CreateStock([FromBody] CreateStockItemDto createStockItem)
         {
-            if (stockItem == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Stock data is empty.");
+                return BadRequest(ModelState);
             }
 
+            StockItem stockItem = new StockItem()
+            {
+                Quantity = createStockItem.Quantity,
+                Sku = createStockItem.Sku,
+                WarehouseLocation = createStockItem.WarehouseLocation,
+                ProductId = createStockItem.ProductId
+            };
+
             // Check if stock for this product already exists
-            var existing = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == stockItem.ProductId);
-            if (existing != null)
+            var result = await _stockItemService.Add(stockItem);
+            if (!result.Succeeded)
             {
                 return Conflict($"Stock already exists for ProductId {stockItem.ProductId}");
             }
 
-            _context.StockItems.Add(stockItem);
-            await _context.SaveChangesAsync();
-
             return Ok(stockItem);
         }
 
-        // PUT: /StockItem/product/{productId}/reduce
-        // Reduces stock quantity (e.g., when an order is placed)
-        [HttpPut("product/{productId}/reduce")]
-        public async Task<IActionResult> ReduceStock(int productId, [FromBody] int quantity)
+        // DELETE: /StockItem/product/{productId}
+        [HttpDelete("/StockItem/product/{productId}")]
+        public async Task<IActionResult> DeleteByProductId(int productId)
         {
+            var result = await _stockItemService.DeleteByProductId(productId);
+            if (!result.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+            return Ok($"Stock for ProductId {productId} deleted.");
+        }
+
+        // GET: /StockItem/{id}
+        [HttpGet("/StockItem/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _stockItemService.GetById(id);
+            if (!result.Succeeded)
+            {
+                return NotFound($"No stock found with id {id}");
+            }
+            return Ok(result.Data);
+        }
+
+        // PUT: /StockItem/product/{productId}
+        // Updates a stock item completely
+        [HttpPut("product/{productId}")]
+        public async Task<IActionResult> UpdateStock(int productId, [FromBody] StockItem updatedStock)
+        {
+            if (updatedStock == null || productId != updatedStock.ProductId)
+            {
+                return BadRequest("Invalid stock data.");
+            }
+
             var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
             if (stock == null)
             {
                 return NotFound($"No stock found for ProductId {productId}");
             }
 
+            stock.Quantity = updatedStock.Quantity;
+            stock.WarehouseLocation = updatedStock.WarehouseLocation;
+            stock.Sku = updatedStock.Sku;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(stock);
+        }
+
+        // PUT: /StockItem/product/{productId}/reduce
+        [HttpPut("/StockItem/product/{productId}/reduce")]
+        public async Task<IActionResult> ReduceStock(int productId, [FromBody] int quantity)
+        {
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
+            {
+                return NotFound($"No stock found for ProductId {productId}");
+            }
+
+            var stock = getResult.Data;
             if (stock.Quantity < quantity)
             {
                 return BadRequest($"Insufficient stock. Available: {stock.Quantity}, Requested: {quantity}");
             }
 
             stock.Quantity -= quantity;
-            await _context.SaveChangesAsync();
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
 
             return Ok(stock);
         }
 
         // PUT: /StockItem/product/{productId}/add
-        // Increases stock quantity (e.g., when an order is cancelled)
-        [HttpPut("product/{productId}/add")]
+        [HttpPut("/StockItem/product/{productId}/add")]
         public async Task<IActionResult> AddStock(int productId, [FromBody] int quantity)
         {
-            var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
-            if (stock == null)
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
             {
                 return NotFound($"No stock found for ProductId {productId}");
             }
 
+            var stock = getResult.Data;
             stock.Quantity += quantity;
-            await _context.SaveChangesAsync();
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
 
             return Ok(stock);
         }
 
         // PUT: /StockItem/product/{productId}/set
-        // Sets stock quantity to a specific value (e.g., admin override)
-        [HttpPut("product/{productId}/set")]
+        [HttpPut("/StockItem/product/{productId}/set")]
         public async Task<IActionResult> SetStock(int productId, [FromBody] int quantity)
         {
-            var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
-            if (stock == null)
+            var getResult = await _stockItemService.GetByProductId(productId);
+            if (!getResult.Succeeded)
             {
                 return NotFound($"No stock found for ProductId {productId}");
             }
 
+            var stock = getResult.Data;
             stock.Quantity = quantity;
-            await _context.SaveChangesAsync();
+            var updateResult = await _stockItemService.Update(stock);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(500, "Failed to update stock.");
+            }
 
             return Ok(stock);
-        }
-
-        // DELETE: /StockItem/product/{productId}
-        [HttpDelete("product/{productId}")]
-        public async Task<IActionResult> DeleteByProductId(int productId)
-        {
-            var stock = await _context.StockItems.FirstOrDefaultAsync(s => s.ProductId == productId);
-            if (stock == null)
-            {
-                return NotFound($"No stock found for ProductId {productId}");
-            }
-
-            _context.StockItems.Remove(stock);
-            await _context.SaveChangesAsync();
-
-            return Ok($"Stock for ProductId {productId} deleted.");
         }
     }
 }

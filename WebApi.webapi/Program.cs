@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
+using WebApi.Repositories;
+using Webshop.Application.Repositories;
+using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +12,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("StockWebApiConnection"));
 });
-
+builder.Services.AddScoped<IStockItemService, StockItemService>();
+builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

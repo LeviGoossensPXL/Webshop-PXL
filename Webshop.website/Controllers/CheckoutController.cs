@@ -66,22 +66,11 @@ namespace Webshop.website.Controllers
 
             if (ModelState.IsValid)
             {
-                // Map ViewModel to Domain Entity before sending to Application layer
-                var address = new Address
-                {
-                    Street = model.Street,
-                    HouseNumber = model.HouseNumber,
-                    City = model.City,
-                    ZipCode = model.PostalCode,
-                    Country = model.Country
-                };
+                // Serialize the model to a JSON string to store it safely in TempData.
+                // This keeps the address in memory while the user is on the payment page.
+                TempData["OrderAddress"] = System.Text.Json.JsonSerializer.Serialize(model);
 
-                string userId = User.Identity?.Name ?? "GuestCustomer";
-
-                // Process the order via the new CheckoutService
-                int orderId = await _checkoutService.ProcessOrderAsync(address, userId);
-
-                return RedirectToAction("Payment", new { orderId = orderId });
+                return RedirectToAction("Payment");
             }
 
             // If mapping fails, rebuild the cart view
@@ -104,23 +93,43 @@ namespace Webshop.website.Controllers
 
         // GET: Checkout/Payment
         [HttpGet]
-        public IActionResult Payment(int orderId)
+        public IActionResult Payment()
         {
-            ViewBag.OrderId = orderId;
+            // Redirect back if the user tries to access this page without filling in the address first
+            if (!TempData.ContainsKey("OrderAddress")) return RedirectToAction("Index");
+
+            // Keep the data alive in TempData for the next POST request
+            TempData.Keep("OrderAddress");
             return View();
         }
 
         // POST: Checkout/ProcessPayment
         [HttpPost]
-        public async Task<IActionResult> ProcessPayment(int orderId)
+        public async Task<IActionResult> ProcessPayment()
         {
-            // Payment confirmed — now reduce stock and update order status
-            await _checkoutService.ConfirmPaymentAsync(orderId);
+            if (!TempData.ContainsKey("OrderAddress")) return RedirectToAction("Index");
 
-            // Empty the shopping cart
+            // Retrieve the JSON string from TempData and convert it back to our view model
+            var modelJson = TempData["OrderAddress"].ToString();
+            var model = System.Text.Json.JsonSerializer.Deserialize<OrderCreateViewModel>(modelJson);
+
+            var address = new Address
+            {
+                Street = model.Street,
+                HouseNumber = model.HouseNumber,
+                City = model.City,
+                ZipCode = model.PostalCode,
+                Country = model.Country
+            };
+
+            string userId = User.Identity?.Name ?? "GuestCustomer";
+
+            // Create the actual order in the database now that we are sure the payment process is complete
+            int orderId = await _checkoutService.CreateOrderAndConfirmAsync(address, userId);
+
             _cartService.ClearCart();
 
-            return View("PaymentSuccess", orderId);
+            return RedirectToAction("Success", new { orderId = orderId });
         }
 
         // GET: Checkout/Success
