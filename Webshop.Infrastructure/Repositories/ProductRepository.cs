@@ -45,7 +45,7 @@ namespace Webshop.Infrastructure.Repositories
         {
             // Include the Category navigation property to load the related category data
             // otherwise,the Category property will be null when accessed outside of this method
-            return await _context.Products
+            return await _context.Products.AsNoTracking()
                          .Include(p => p.Category)
                          .FirstOrDefaultAsync(p => p.ProductId == id);
         }
