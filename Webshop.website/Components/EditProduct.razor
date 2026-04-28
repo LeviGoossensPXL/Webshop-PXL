@@ -153,7 +153,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		categories = await CategoryRepository.GetAll();
+		categories = await CategoryService.GetAll();
 
 		var result = await ProductService.GetById(ProductId);
 		if (result.Succeeded && result.Data != null)

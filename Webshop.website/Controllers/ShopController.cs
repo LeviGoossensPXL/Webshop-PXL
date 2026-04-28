@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Webshop.Application.Services.Contracts;
-using Webshop.Domain.Entities;
+using Webshop.Application.Repositories;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -8,29 +7,29 @@ namespace Webshop.website.Controllers
     // This controller is for the customer side
     public class ShopController : Controller
     {
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ShopController(IProductService productService, ICategoryService categoryService)
+        public ShopController(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _productService = productService;
-            _categoryService = categoryService;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var productResult = await _productService.GetAll();
-            var categories = await _categoryService.GetAll();
+            var products = await _productRepository.GetAll();
+            var categories = await _categoryRepository.GetAll();
 
-           
+
             var sortedProducts = products
                 .OrderBy(p => p.CategoryId)
                 .ThenByDescending(p => p.ProductId)
                 .AsEnumerable();
 
-          
+
             if (categoryId.HasValue && categoryId > 0)
             {
                 sortedProducts = sortedProducts.Where(p => p.CategoryId == categoryId.Value);
@@ -56,11 +55,10 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var productResult = await _productService.GetById(id);
-            if (productResult == null || !productResult.Succeeded) return NotFound();
+            var product = await _productRepository.GetById(id);
+            if (product == null) return NotFound();
 
-            var categories = await _categoryService.GetAll();
-            var product = productResult.Data;
+            var categories = await _categoryRepository.GetAll();
 
             var viewModel = new ProductDetailViewModel
             {

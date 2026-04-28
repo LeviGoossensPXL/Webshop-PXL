@@ -12,12 +12,14 @@ namespace Webshop.website.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryService _categoryService;
 
-        public ProductController(IProductService productService, ICategoryRepository categoryRepository)
+
+        public ProductController(IProductService productService, ICategoryService categoryService)
         {
             _productService = productService;
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
+          
         }
 
         // GET: Product (GetAll)
