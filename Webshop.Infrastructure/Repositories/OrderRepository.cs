@@ -35,6 +35,15 @@ namespace Webshop.Infrastructure.Repositories
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
+        public async Task<IEnumerable<Order>> GetByUserId(string userId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderLines)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
         public async Task Add(Order order)
         {
             _context.Orders.Add(order);

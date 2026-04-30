@@ -46,6 +46,13 @@ namespace Webshop.Application.Services
             return result;
         }
 
+        public async Task<ServiceResultOfT<IEnumerable<Order>>> GetOrdersByUserId(string userId)
+        {
+            var result = new ServiceResultOfT<IEnumerable<Order>>();
+            result.Data = await _orderRepository.GetByUserId(userId);
+            return result;
+        }
+
         public async Task<ServiceResult> Add(Order order)
         {
             var result = new ServiceResult();
@@ -102,24 +109,56 @@ namespace Webshop.Application.Services
             var oldStatus = order.Status;
             var newOrderStatus = (OrderStatus)newStatus;
 
+            // Do not take any action if the order status has not changed
+            if (oldStatus == newOrderStatus) return result;
+
+          
+            // If the order is cancelled: Restore stock
+            if (newOrderStatus == OrderStatus.Cancelled && oldStatus != OrderStatus.Cancelled)
+            {
+                var stockResult = await ManageStockUpdate(order, "add");
+                if (!stockResult.Succeeded) return stockResult;
+            }
+            // If the order is being reinstated after cancellation (Pending/Processing, etc.): Reduce stock again
+            else if (oldStatus == OrderStatus.Cancelled && newOrderStatus != OrderStatus.Cancelled)
+            {
+                var stockResult = await ManageStockUpdate(order, "reduce");
+                if (!stockResult.Succeeded) return stockResult;
+            }
+
+            // If stock operations are successful, update the order status
             order.Status = newOrderStatus;
             await _orderRepository.Update(order);
 
-            // If order is being cancelled and it wasn't already cancelled, restore stock
-            if (newOrderStatus == OrderStatus.Cancelled && oldStatus != OrderStatus.Cancelled)
+            return result;
+        }
+
+        private async Task<ServiceResult> ManageStockUpdate(Order order, string action)
+        {
+            var result = new ServiceResult();
+            if (order.OrderLines == null || !order.OrderLines.Any())
             {
-                try
+                return result;
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("StockApi");
+                foreach (var line in order.OrderLines)
                 {
-                    var client = _httpClientFactory.CreateClient("StockApi");
-                    foreach (var line in order.OrderLines)
+                    var response = await client.PutAsJsonAsync($"/StockItem/product/{line.ProductId}/{action}", line.Quantity);
+                    if (!response.IsSuccessStatusCode)
                     {
-                        await client.PutAsJsonAsync($"/StockItem/product/{line.ProductId}/add", line.Quantity);
+                        var error = await response.Content.ReadAsStringAsync();
+                        result.Failed($"Stock API {action} failed for product {line.ProductId}: {error}");
+                        return result;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Stock API restore failed: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                result.Failed($"Stock API connection error during {action}: {ex.Message}");
+                return result;
             }
 
             return result;

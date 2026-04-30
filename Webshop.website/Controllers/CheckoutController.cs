@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
@@ -122,7 +123,8 @@ namespace Webshop.website.Controllers
                 Country = model.Country
             };
 
-            string userId = User.Identity?.Name ?? "GuestCustomer";
+            // Use the unique ID (NameIdentifier) instead of the name/email to ensure consistency with My Orders filter
+            string userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "GuestCustomer";
 
             // Create the actual order in the database now that we are sure the payment process is complete
             int orderId = await _checkoutService.CreateOrderAndConfirmAsync(address, userId);
