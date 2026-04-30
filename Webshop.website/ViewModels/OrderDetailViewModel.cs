@@ -8,6 +8,7 @@ namespace Webshop.website.ViewModels
         public int OrderId { get; set; }
 
         public string UserId { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
 
         public DateTime OrderDate { get; set; }
 
@@ -22,5 +23,7 @@ namespace Webshop.website.ViewModels
 
         // The formatted delivery address (Street + City + PostalCode together)
         public string FullAddress { get; set; } = string.Empty;
+
+        public List<OrderLineViewModel> OrderLines { get; set; } = new List<OrderLineViewModel>();
     }
 }
