@@ -12,11 +12,12 @@ namespace Webshop.website.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly IProductService _productService;
 
-
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IProductService productService)
         {
             _orderService = orderService;
+            _productService = productService;
         }
 
         //GET: Order (GetAll)
@@ -47,6 +48,33 @@ namespace Webshop.website.Controllers
                 return NotFound();
             }
 
+            var order = result.Data;
+            var orderItemsList = new List<OrderItemViewModel>();
+
+            if (order.OrderLines != null && order.OrderLines.Any())
+            {
+                foreach (var line in order.OrderLines)
+                {
+                    
+                    string productName = $"Product #{line.ProductId}";
+
+                    
+                    var productResult = await _productService.GetById(line.ProductId);
+                    if (productResult.Succeeded && productResult.Data != null)
+                    {
+                        productName = productResult.Data.Name;
+                    }
+
+                    orderItemsList.Add(new OrderItemViewModel
+                    {
+                        ProductId = line.ProductId,
+                        ProductName = productName,
+                        Quantity = line.Quantity,
+                        UnitPrice = line.UnitPrice
+                    });
+                }
+            }
+
             var viewModel = new OrderDetailViewModel
             {
                 OrderId = result.Data.OrderId,
@@ -55,7 +83,8 @@ namespace Webshop.website.Controllers
                 Status = result.Data.Status.ToString(),
                 TotalPrice = _orderService.CalculateTotalAmount(result.Data),
                 // Format the delivery address safely
-                FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data)
+                FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data),
+                Items = orderItemsList
             };
 
             return View(viewModel);
