@@ -1,4 +1,7 @@
+using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using WebApi.Data;
 using WebApi.Repositories;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services;
@@ -8,6 +11,7 @@ using AppDbContext = WebApi.Data.AppDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddDotNetEnv("../");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -18,7 +22,30 @@ builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "Voer je API key in",
+        Name = "X-Api-Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "ApiKeyScheme"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {{
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                }
+            },
+            new string[] { }
+    }});
+});
 
 var app = builder.Build();
 

@@ -7,6 +7,7 @@ using Webshop.Application.Services.Contracts;
 
 namespace WebApi.Controllers
 {
+    [ApiKey]
     [ApiController]
     [Route("[controller]")]
     public class StockItemController : ControllerBase
