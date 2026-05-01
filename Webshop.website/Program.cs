@@ -8,7 +8,6 @@ using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
-using Webshop.website.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from the .env file
@@ -117,7 +116,8 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate(); // always apply migrations during startup (could cause problems)
     // more info here: https://codebuckets.com/2020/08/14/applying-entity-framework-migrations-to-a-docker-container/
 
-    await DbInitializer.SeedAsync(scope.ServiceProvider);
+    await DbWebsiteInitializer.InitAsync(scope.ServiceProvider);
+    await DbWebsiteInitializer.SeedAsync(scope.ServiceProvider);
 }
 // ==========================================================
 

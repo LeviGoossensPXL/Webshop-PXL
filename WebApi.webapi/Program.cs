@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using WebApi.Data;
 using WebApi.Repositories;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services;
 using Webshop.Application.Services.Contracts;
+using Webshop.Infrastructure.Data;
+using AppDbContext = WebApi.Data.AppDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.Migrate();
+    await DbApiInitializer.SeedAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.
