@@ -11,6 +11,7 @@ services:
       - Authentication__Google__ClientId=$Authentication__Google__ClientId
       - Authentication__Google__ClientSecret=$Authentication__Google__ClientSecret
       - StockApi__BaseUrl=http://webshop.webapi:8080
+      - WebApi__ApiKey=$WebApi__ApiKey
     networks:
       - webshop-network
     ports:
@@ -49,6 +50,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__StockWebApiConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
+      - WebApi__ApiKey=$WebApi__ApiKey
     networks:
       - webshop-network
     ports:
