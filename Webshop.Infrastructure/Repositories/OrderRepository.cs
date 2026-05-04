@@ -23,6 +23,7 @@ namespace Webshop.Infrastructure.Repositories
         {
             return await _context.Orders
                    .Include(o => o.OrderLines)
+                        .ThenInclude(ol => ol.Product)
                    .AsNoTracking()
                    .ToListAsync();
         }
@@ -31,6 +32,7 @@ namespace Webshop.Infrastructure.Repositories
         {
             return await _context.Orders
                 .Include(o => o.OrderLines)
+                    .ThenInclude(ol => ol.Product)
                 .Include(o => o.DeliveryAddress)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
@@ -39,6 +41,7 @@ namespace Webshop.Infrastructure.Repositories
         {
             return await _context.Orders
                 .Include(o => o.OrderLines)
+                    .ThenInclude(ol => ol.Product)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();

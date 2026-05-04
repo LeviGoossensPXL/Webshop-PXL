@@ -47,7 +47,7 @@
                                         @foreach (var item in Model.OrderLines)
                                         {
                                             <tr>
-                                                <td>@item.ProductName</td>
+                                                <td>(#@item.ProductId) @item.ProductName</td>
                                                 <td class="text-center">@item.Quantity</td>
                                                 <td class="text-end">@item.UnitPrice.ToString("C")</td>
                                                 <td class="text-end">@item.Subtotal.ToString("C")</td>
