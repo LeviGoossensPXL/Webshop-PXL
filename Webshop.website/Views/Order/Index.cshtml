@@ -29,7 +29,7 @@
                             <tr>
                                 <td class="ps-4 fw-bold">#@item.OrderId</td>
 								<td>@item.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
-                                <td class="text-muted">@item.UserId</td>
+                                <td class="text-muted">@item.UserEmail</td>
                                 <td class="fw-bold text-success">€ @item.TotalAmount.ToString("F2")</td>
                                 <td>
                                     <span class="badge bg-secondary">@item.Status</span>
@@ -42,9 +42,13 @@
                                         <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-outline-warning btn-sm py-2">
                                             <i class="bi bi-pencil"></i> Edit
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-outline-danger btn-sm py-2">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </a>
+									
+										@if (item.Status.ToString() == "Cancelled" || item.Status.ToString() == "Delivered")
+										{
+											<a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-outline-danger btn-sm py-2">
+												<i class="bi bi-trash"></i> Delete
+											</a>
+										}
                                     </div>
                                 </td>
                             </tr>

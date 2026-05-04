@@ -1,0 +1,59 @@
+@model IEnumerable<Webshop.website.ViewModels.OrderListViewModel>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You haven't placed any orders yet. <a asp-controller="Shop" asp-action="Index">Start shopping!</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>#@order.OrderId</td>
+                            <td>@order.OrderDate.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>
+                                @{
+                                    var badgeClass = order.Status switch
+                                    {
+                                        "Pending" => "bg-warning text-dark",
+                                        "Processing" => "bg-info text-white",
+                                        "Shipped" => "bg-primary text-white",
+                                        "Delivered" => "bg-success text-white",
+                                        "Cancelled" => "bg-danger text-white",
+                                        _ => "bg-secondary text-white"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@order.Status</span>
+                            </td>
+                            <td>@order.TotalAmount.ToString("C")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

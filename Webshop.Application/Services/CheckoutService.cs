@@ -31,12 +31,12 @@ namespace Webshop.Application.Services
                 return 0;
             }
 
-            // Create the order directly with status Processing since payment is already done
+            // Create the order directly with status Pending since payment is already done
             var order = new Order
             {
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
-                Status = OrderStatus.Processing,
+                Status = OrderStatus.Pending,
                 DeliveryAddress = deliveryAddress,
                 OrderLines = cart.Items.Select(item => new OrderLine
                 {
@@ -66,4 +66,4 @@ namespace Webshop.Application.Services
         }
     }
 }
-
+

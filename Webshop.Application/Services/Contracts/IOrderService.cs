@@ -7,6 +7,7 @@ namespace Webshop.Application.Services.Contracts
     {
         Task<ServiceResultOfT<IEnumerable<Order>>> GetAll();
         Task<ServiceResultOfT<Order>> GetById(int id);
+        Task<ServiceResultOfT<IEnumerable<Order>>> GetOrdersByUserId(string userId);
         Task<ServiceResult> Add(Order order);
         Task<ServiceResult> Update(Order order);
         Task<ServiceResult> Delete(int id);

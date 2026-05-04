@@ -1,4 +1,4 @@
-﻿@model Webshop.website.ViewModels.OrderUpdateViewModel
+@model Webshop.website.ViewModels.OrderUpdateViewModel
 @using Webshop.Domain.Entities
 
 @{
@@ -7,40 +7,75 @@
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6 border p-4 bg-white shadow-sm rounded">
-            <h2 class="text-center mb-4 text-warning">Edit Order</h2>
-            <form asp-action="Edit" method="post">
-                <input type="hidden" asp-for="OrderId" />
-                <input type="hidden" asp-for="UserId" />
-                <input type="hidden" asp-for="DeliveryAddress" />
-                <input type="hidden" asp-for="OrderDate" />
-
-                <div class="mb-3">
-                    <label class="form-label">Order ID</label>
-                    <input class="form-control" value="#@Model.OrderId" disabled>
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white py-3">
+                    <h4 class="mb-0 text-center text-white">Edit Order #@Model.OrderId</h4>
                 </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="OrderId" />
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="OrderDate" />
 
-                @if (Model.OrderDate.HasValue)
-                {
-                    <div class="mb-3">
-                        <label class="form-label">Order Date</label>
-                        <input class="form-control" value="@Model.OrderDate.Value.ToString("dd MMM yyyy, HH:mm")" disabled>
-                    </div>
-                }
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="text-muted border-bottom pb-2">Customer Info</h5>
+                                <p class="mb-1"><strong>Email:</strong> @Model.UserEmail</p>
+                                <p class="mb-1"><strong>Date:</strong> @Model.OrderDate?.ToString("dd MMM yyyy, HH:mm")</p>
+                                <p class="mb-1"><strong>Total:</strong> <span class="text-success fw-bold">@Model.TotalAmount.ToString("C")</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-muted border-bottom pb-2">Shipping Address</h5>
+                                <p class="mb-0">@Model.FullAddress</p>
+                            </div>
+                        </div>
 
-                <div class="mb-3">
-                    <label asp-for="Status" class="form-label">Order Status</label>
-                    <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
-                        <option value="">-- Select Status --</option>
-                    </select>
-                    <span asp-validation-for="Status" class="text-danger"></span>
+                        <div class="mb-4">
+                            <h5 class="text-muted border-bottom pb-2">Order Items</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-end">Price</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.OrderLines)
+                                        {
+                                            <tr>
+                                                <td>(#@item.ProductId) @item.ProductName</td>
+                                                <td class="text-center">@item.Quantity</td>
+                                                <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                                                <td class="text-end">@item.Subtotal.ToString("C")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-end">
+                            <div class="col-md-6">
+                                <label asp-for="Status" class="form-label fw-bold">Update Status</label>
+                                <select asp-for="Status" class="form-select border-warning" asp-items="Html.GetEnumSelectList<OrderStatus>()">
+                                    <option value="">-- Select Status --</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="d-grid gap-2 d-md-block">
+                                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                                    <button type="submit" class="btn btn-warning text-white px-5">Save Changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-warning text-white">Update Changes</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Go Back</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

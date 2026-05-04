@@ -8,28 +8,55 @@ using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
 {
-    [Authorize(Roles = "Admin")] // Only admins can access this controller
+    [Authorize] // All logged-in users can access
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IProductService _productService;
+        private readonly IAppUserRepository _userRepository;
 
-        public OrderController(IOrderService orderService, IProductService productService)
+
+        public OrderController(IOrderService orderService, IAppUserRepository userRepository)
         {
             _orderService = orderService;
-            _productService = productService;
+            _userRepository = userRepository;
         }
 
-        //GET: Order (GetAll)
+        // GET: Order/MyOrders (For Customers)
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> MyOrders()
         {
-            var result = await _orderService.GetAll();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _orderService.GetOrdersByUserId(userId);
+            var users = await _userRepository.GetAll();
 
             var viewModelList = result.Data.Select(o => new OrderListViewModel
             {
                 OrderId = o.OrderId,
                 UserId = o.UserId,
+                UserEmail = users.FirstOrDefault(u => u.Id == o.UserId)?.Email ?? "Unknown",
+                OrderDate = o.OrderDate,
+                Status = o.Status.ToString(),
+                TotalAmount = _orderService.CalculateTotalAmount(o)
+            }).ToList();
+
+            return View(viewModelList);
+        }
+
+        //GET: Order (GetAll) - ADMIN ONLY
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Index()
+        {
+            var result = await _orderService.GetAll();
+            var users = await _userRepository.GetAll();
+
+            var viewModelList = result.Data.Select(o => new OrderListViewModel
+            {
+                OrderId = o.OrderId,
+                UserId = o.UserId,
+                UserEmail = users.FirstOrDefault(u => u.Id == o.UserId)?.Email ?? "Unknown",
                 OrderDate = o.OrderDate,
                 Status = o.Status.ToString(),
                 TotalAmount = _orderService.CalculateTotalAmount(o)
@@ -42,57 +69,48 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var result = await _orderService.GetById(id);
-            // rely on the explicit result status rather than null checks
             if (!result.Succeeded)
             {
                 return NotFound();
             }
 
-            var order = result.Data;
-            var orderItemsList = new List<OrderItemViewModel>();
+            // Security check: Only Admin or the owner can see the details
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole("Admin");
 
-            if (order.OrderLines != null && order.OrderLines.Any())
+            if (!isAdmin && result.Data.UserId != userId)
             {
-                foreach (var line in order.OrderLines)
-                {
-                    
-                    string productName = $"Product #{line.ProductId}";
-
-                    
-                    var productResult = await _productService.GetById(line.ProductId);
-                    if (productResult.Succeeded && productResult.Data != null)
-                    {
-                        productName = productResult.Data.Name;
-                    }
-
-                    orderItemsList.Add(new OrderItemViewModel
-                    {
-                        ProductId = line.ProductId,
-                        ProductName = productName,
-                        Quantity = line.Quantity,
-                        UnitPrice = line.UnitPrice
-                    });
-                }
+                return Forbid();
             }
+
+            var orderUser = await _userRepository.GetById(result.Data.UserId);
 
             var viewModel = new OrderDetailViewModel
             {
                 OrderId = result.Data.OrderId,
                 UserId = result.Data.UserId,
+                UserEmail = orderUser?.Email ?? "Unknown",
                 OrderDate = result.Data.OrderDate,
                 Status = result.Data.Status.ToString(),
                 TotalPrice = _orderService.CalculateTotalAmount(result.Data),
                 // Format the delivery address safely
                 FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data),
-                Items = orderItemsList
+                OrderLines = result.Data.OrderLines?.Select(ol => new OrderLineViewModel
+                {
+                    ProductId = ol.ProductId,
+                    Quantity = ol.Quantity,
+                    UnitPrice = ol.UnitPrice,
+                    ProductName = ol.Product?.Name ?? "Product #" + ol.ProductId
+                }).ToList() ?? new List<OrderLineViewModel>()
             };
 
             return View(viewModel);
         }
 
         
-        // GET: Order/Edit/5 (edit form to open)
+        // GET: Order/Edit/5 (edit form to open) - ADMIN ONLY
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var result = await _orderService.GetById(id);
@@ -101,18 +119,33 @@ namespace Webshop.website.Controllers
                 return NotFound();
             }
 
-            // Map Domain Entity to Update ViewModel
+            var orderUser = await _userRepository.GetById(result.Data.UserId);
+
+            // Map Domain Entity to Update ViewModel with rich details
             var model = new OrderUpdateViewModel
             {
                 OrderId = result.Data.OrderId,
-                Status = (int)result.Data.Status
+                UserId = result.Data.UserId,
+                UserEmail = orderUser?.Email ?? "Unknown",
+                OrderDate = result.Data.OrderDate,
+                Status = (int)result.Data.Status,
+                FullAddress = _orderService.GetFormattedDeliveryAddress(result.Data),
+                TotalAmount = _orderService.CalculateTotalAmount(result.Data),
+                OrderLines = result.Data.OrderLines?.Select(ol => new OrderLineViewModel
+                {
+                    ProductId = ol.ProductId,
+                    Quantity = ol.Quantity,
+                    UnitPrice = ol.UnitPrice,
+                    ProductName = ol.Product?.Name ?? "Product #" + ol.ProductId
+                }).ToList() ?? new List<OrderLineViewModel>()
             };
 
             return View(model);
         }
 
-        // POST: Order/Edit/5 (Save edit)
+        // POST: Order/Edit/5 (Save edit) - ADMIN ONLY
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(OrderUpdateViewModel model)
         {
             if (ModelState.IsValid)
@@ -134,8 +167,9 @@ namespace Webshop.website.Controllers
             return View(model);
         }
 
-        // GET: Order/Delete/5 (delete confirm page)
+        // GET: Order/Delete/5 (delete confirm page) - ADMIN ONLY
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _orderService.GetById(id);
@@ -158,8 +192,9 @@ namespace Webshop.website.Controllers
             return View(viewModel);
         }
 
-        // POST: Order/Delete/5 
+        // POST: Order/Delete/5  - ADMIN ONLY
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _orderService.Delete(id);
