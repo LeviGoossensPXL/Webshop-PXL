@@ -374,3 +374,6 @@ Webshop.website/wwwroot/images/*
 *.env
 !*.example.env
 /DuendeIdentityServer/keys/is-signing-key-1896ED294DF1FCD37C9EF57CBA50D845.json
+
+# local file
+build-and-push.sh

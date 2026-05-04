@@ -4,6 +4,7 @@
     {
         public int OrderId { get; set; }
         public string UserId { get; set; }
+        public string UserEmail { get; set; } = string.Empty;
         public DateTime OrderDate { get; set; }
 
         //We use string here to display the Enum as text (e.g., "Pending", "Shipped")
