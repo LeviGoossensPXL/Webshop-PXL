@@ -9,9 +9,9 @@ namespace Webshop.website.Controllers
     public class ShopController : Controller
     {
         private readonly IShopService _shopService;
-        private readonly PageService _pageService;
+        private readonly IPageService _pageService;
 
-        public ShopController(IShopService shopService, PageService pageService)
+        public ShopController(IShopService shopService, IPageService pageService)
         {
             _shopService = shopService;
             _pageService = pageService;
