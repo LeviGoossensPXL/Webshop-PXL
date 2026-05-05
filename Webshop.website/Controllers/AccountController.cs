@@ -107,7 +107,7 @@ namespace Webshop.website.Controllers
 
         public IActionResult GoogleLogin()
         {
-            var properties = _identityService.GoogleLogin(Url.Action("PostLogin")!);
+            var properties = _identityService.GoogleLogin(Url.Action("GoogleResponse")!);
             return new ChallengeResult("google", properties);
         }
 
