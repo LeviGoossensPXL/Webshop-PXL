@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Webshop.Application.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Webshop.Application.Services.Contracts;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -7,35 +7,21 @@ namespace Webshop.website.Controllers
     // This controller is for the customer side
     public class ShopController : Controller
     {
-        private readonly IProductRepository _productRepository;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IShopService _shopService;
 
-        public ShopController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ShopController(IShopService shopService)
         {
-            _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
+            _shopService = shopService;
         }
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productRepository.GetAll();
-            var categories = await _categoryRepository.GetAll();
+            var productsResult = await _shopService.GetProducts(categoryId);
+            var categories = await _shopService.GetCategories();
 
-
-            var sortedProducts = products
-                .OrderBy(p => p.CategoryId)
-                .ThenByDescending(p => p.ProductId)
-                .AsEnumerable();
-
-
-            if (categoryId.HasValue && categoryId > 0)
-            {
-                sortedProducts = sortedProducts.Where(p => p.CategoryId == categoryId.Value);
-            }
-
-            var viewModelList = sortedProducts.Select(p => new ProductListViewModel
+            var viewModelList = productsResult.Data.Select(p => new ProductListViewModel
             {
                 Id = p.ProductId,
                 Name = p.Name,
@@ -55,10 +41,11 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productRepository.GetById(id);
-            if (product == null) return NotFound();
+            var productResult = await _shopService.GetProductById(id);
+            if (!productResult.Succeeded) return NotFound();
 
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _shopService.GetCategories();
+            var product = productResult.Data;
 
             var viewModel = new ProductDetailViewModel
             {
