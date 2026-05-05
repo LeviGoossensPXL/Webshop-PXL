@@ -21,13 +21,13 @@ namespace Webshop.Application.Services
             var result = new ServiceResultOfT<IEnumerable<Product>>();
             var products = await _productRepository.GetAll();
 
+            if (categoryId.HasValue && categoryId.Value > 0)
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+
             var sorted = products
                 .OrderBy(p => p.CategoryId)
                 .ThenByDescending(p => p.ProductId)
                 .AsEnumerable();
-
-            if (categoryId.HasValue && categoryId.Value > 0)
-                sorted = sorted.Where(p => p.CategoryId == categoryId.Value);
 
             result.Data = sorted;
             return result;
