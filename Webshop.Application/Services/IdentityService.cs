@@ -96,7 +96,7 @@ namespace Webshop.Application.Services
 
         public AuthenticationProperties GoogleLogin(string redirectUrl)
         {
-            string scheme = "oidc";
+            string scheme = "google";
             return _signInManager.ConfigureExternalAuthenticationProperties(scheme, redirectUrl);
         }
 
