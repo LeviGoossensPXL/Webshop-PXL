@@ -1,7 +1,8 @@
 using DotNetEnv.Configuration;
-using Webshop.website.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services;
 using Webshop.Application.Services.Contracts;
@@ -9,6 +10,7 @@ using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
 using Webshop.website;
+using Webshop.website.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from the .env file
@@ -67,6 +69,17 @@ builder.Services.AddHttpClient("StockApi", client =>
 });
 
 var app = builder.Build();
+
+// Set the default culture to ensure consistent currency and date formatting
+var defaultCulture = new CultureInfo("nl-BE"); //for Euro formatting
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(defaultCulture),
+    SupportedCultures = new List<CultureInfo> { defaultCulture },
+    SupportedUICultures = new List<CultureInfo> { defaultCulture }
+};
+
+app.UseRequestLocalization(localizationOptions);
 
 // ==========================================================
 using (var scope = app.Services.CreateScope())
