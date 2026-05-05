@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Webshop.Application.Services;
 using Webshop.Application.Services.Contracts;
 using Webshop.website.ViewModels;
 
@@ -8,10 +9,12 @@ namespace Webshop.website.Controllers
     public class ShopController : Controller
     {
         private readonly IShopService _shopService;
+        private readonly PageService _pageService;
 
-        public ShopController(IShopService shopService)
+        public ShopController(IShopService shopService, PageService pageService)
         {
             _shopService = shopService;
+            _pageService = pageService;
         }
 
         private const int PageSize = 18;
@@ -44,17 +47,13 @@ namespace Webshop.website.Controllers
         public async Task<IActionResult> Index(int? categoryId, int page = 1)
         {
             var result = await _shopService.GetProducts(categoryId);
-            var filtered = result.Data;
 
-            var totalCount = filtered.Count();
-            var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
-            page = Math.Clamp(page, 1, Math.Max(1, totalPages));
+            var sol = _pageService.GetPaging(result.Data, page);
 
             var categories = await _shopService.GetCategories();
 
-            var viewModelList = filtered
-                .Skip((page - 1) * PageSize)
-                .Take(PageSize)
+            var viewModelList = sol
+                .Item1
                 .Select(p => new ProductListViewModel
                 {
                     Id = p.ProductId,
@@ -70,8 +69,7 @@ namespace Webshop.website.Controllers
             return View(new ShopIndexViewModel
             {
                 Products = viewModelList,
-                CurrentPage = page,
-                TotalPages = totalPages,
+                PagingInfo = sol.Item2,
                 CurrentCategory = categoryId
             });
         }

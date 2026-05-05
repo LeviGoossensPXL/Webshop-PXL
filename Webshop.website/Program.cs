@@ -8,6 +8,7 @@ using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
 using Webshop.Infrastructure.Data;
 using Webshop.Infrastructure.Repositories;
+using Webshop.website;
 
 var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from the .env file
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<IPageService, PageService>();
 
 // Session configuration
 builder.Services.AddDistributedMemoryCache(); // Vereist voor session

@@ -56,21 +56,21 @@
 	</div>
 
 	@* Pagination *@
-	@if (Model.TotalPages > 1)
+	@if (Model.PagingInfo.TotalPages > 1)
 	{
 		<nav class="mt-5 d-flex justify-content-center" aria-label="Product pages">
 			<ul class="pagination">
-				<li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+				<li class="page-item @(Model.PagingInfo.CurrentPage == 1 ? "disabled" : "")">
 					<a class="page-link" asp-action="Index"
 					   asp-route-categoryId="@Model.CurrentCategory"
-					   asp-route-page="@(Model.CurrentPage - 1)">
+					   asp-route-page="@(Model.PagingInfo.CurrentPage - 1)">
 						&laquo;
 					</a>
 				</li>
 
-				@for (int i = 1; i <= Model.TotalPages; i++)
+				@for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
 				{
-					<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+					<li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
 						<a class="page-link" asp-action="Index"
 						   asp-route-categoryId="@Model.CurrentCategory"
 						   asp-route-page="@i">
@@ -79,10 +79,10 @@
 					</li>
 				}
 
-				<li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+				<li class="page-item @(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages ? "disabled" : "")">
 					<a class="page-link" asp-action="Index"
 					   asp-route-categoryId="@Model.CurrentCategory"
-					   asp-route-page="@(Model.CurrentPage + 1)">
+					   asp-route-page="@(Model.PagingInfo.CurrentPage + 1)">
 						&raquo;
 					</a>
 				</li>
