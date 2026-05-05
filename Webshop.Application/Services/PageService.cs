@@ -18,14 +18,14 @@ public class PageService : IPageService
     public (IEnumerable<T> list, PagingInfo pageInfo) GetPaging<T>(IEnumerable<T> list, int requestedPage)
     {
         var enumerable = list.ToList();
-        var totalCount = enumerable.Count();
+        var totalCount = enumerable.Count;
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
         requestedPage = Math.Clamp(requestedPage, 1, Math.Max(1, totalPages));
 
         list = enumerable.Skip((requestedPage - 1) * PageSize).Take(PageSize);
 
-        var pageInfo = new PagingInfo()
+        var pageInfo = new PagingInfo
         {
             CurrentPage = requestedPage,
             TotalPages = totalPages
