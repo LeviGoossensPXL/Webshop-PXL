@@ -15,20 +15,21 @@ public class PageService : IPageService
     /// <typeparam name="T">The Entity for which the page is made</typeparam>
     /// <returns>a tuple with first the list of entities for the current page and
     /// second an object holding the info (metadata) for the current page</returns>
-    public Tuple<IEnumerable<T>, PagingInfo> GetPaging<T>(IEnumerable<T> list, int requestedPage)
+    public (IEnumerable<T> list, PagingInfo pageInfo) GetPaging<T>(IEnumerable<T> list, int requestedPage)
     {
-        var totalCount = list.Count();
+        var enumerable = list.ToList();
+        var totalCount = enumerable.Count();
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
         requestedPage = Math.Clamp(requestedPage, 1, Math.Max(1, totalPages));
 
-        list = list.Skip((requestedPage - 1) * PageSize).Take(PageSize);
+        list = enumerable.Skip((requestedPage - 1) * PageSize).Take(PageSize);
 
         var pageInfo = new PagingInfo()
         {
             CurrentPage = requestedPage,
             TotalPages = totalPages
         };
-        return new Tuple<IEnumerable<T>, PagingInfo>(list, pageInfo);
+        return (list, pageInfo);
     }
 }

@@ -4,5 +4,5 @@ namespace Webshop.Application.Services.Contracts;
 
 public interface IPageService
 {
-    public Tuple<IEnumerable<T>, PagingInfo> GetPaging<T>(IEnumerable<T> list, int requestedPage);
+    public (IEnumerable<T> list, PagingInfo pageInfo) GetPaging<T>(IEnumerable<T> list, int requestedPage);
 }

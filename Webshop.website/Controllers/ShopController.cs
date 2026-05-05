@@ -48,13 +48,12 @@ namespace Webshop.website.Controllers
         {
             var result = await _shopService.GetProducts(categoryId);
 
-            var sol = _pageService.GetPaging(result.Data, page);
+            var paging = _pageService.GetPaging(result.Data, page);
 
             var categories = await _shopService.GetCategories();
 
-            var viewModelList = sol
-                .Item1
-                .Select(p => new ProductListViewModel
+            var viewModelList = paging
+                .list.Select(p => new ProductListViewModel
                 {
                     Id = p.ProductId,
                     Name = p.Name,
@@ -69,7 +68,7 @@ namespace Webshop.website.Controllers
             return View(new ShopIndexViewModel
             {
                 Products = viewModelList,
-                PagingInfo = sol.Item2,
+                PagingInfo = paging.pageInfo,
                 CurrentCategory = categoryId
             });
         }
