@@ -17,8 +17,6 @@ namespace Webshop.website.Controllers
             _pageService = pageService;
         }
 
-        private const int PageSize = 18;
-
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
         public async Task<IActionResult> Index1(int? categoryId, int page = 1)
