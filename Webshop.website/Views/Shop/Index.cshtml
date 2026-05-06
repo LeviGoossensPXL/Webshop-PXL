@@ -1,5 +1,3 @@
-@model IEnumerable<Webshop.website.ViewModels.ProductListViewModel>
-@{
 @model Webshop.website.ViewModels.ShopIndexViewModel
 
 @{
@@ -10,7 +8,7 @@
 	<div class="d-flex justify-content-between align-items-center mb-4">
 		<h2>Outdoor Adventure Store</h2>
 		<form id="searchForm" method="get" asp-action="Index" class="d-flex w-50 shadow-sm rounded-pill bg-white border">
-			<input type="hidden" name="categoryId" value="@ViewBag.CurrentCategory" />
+			<input type="hidden" name="categoryId" value="@Model.CurrentCategory" />
 			<span class="d-flex align-items-center ps-3 text-muted">
 				<i class="bi bi-search"></i>
 			</span>
@@ -23,24 +21,21 @@
 
 	@* Category Filter Buttons *@
 	<div class="d-flex flex-wrap gap-2 mb-4">
-		<a asp-action="Index" asp-route-categoryId="" asp-route-searchQuery="@ViewBag.SearchQuery"
-		   class="btn @(ViewBag.CurrentCategory == 0 ? "btn-dark" : "btn-outline-dark") rounded-pill px-4 fw-bold">
-		<a asp-action="Index" asp-route-categoryId="" asp-route-page="1"
+		<a asp-action="Index" asp-route-categoryId="" asp-route-searchQuery="@ViewBag.SearchQuery" asp-route-page="1"
 		   class="btn @(Model.CurrentCategory == null || Model.CurrentCategory == 0 ? "btn-dark" : "btn-outline-dark") rounded-pill px-4 fw-bold">
 			All
 		</a>
 
 		@foreach (var category in (IEnumerable<Webshop.Domain.Entities.Category>)ViewBag.Categories)
 		{
-			<a asp-action="Index" asp-route-categoryId="@category.CategoryId" asp-route-searchQuery="@ViewBag.SearchQuery"
-			   class="btn @(ViewBag.CurrentCategory == category.CategoryId ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">
-			<a asp-action="Index" asp-route-categoryId="@category.CategoryId" asp-route-page="1"
+			<a asp-action="Index" asp-route-categoryId="@category.CategoryId" asp-route-searchQuery="@ViewBag.SearchQuery" asp-route-page="1"
 			   class="btn @(Model.CurrentCategory == category.CategoryId ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">
 				@category.Name
 			</a>
 		}
 	</div>
-	@if (!Model.Any())
+
+	@if (!Model.Products.Any())
 	{
 		<div class="text-center py-5 bg-white rounded shadow-sm border my-4">
 			<i class="bi bi-search text-muted mb-3 d-block" style="font-size: 3rem;"></i>
@@ -52,7 +47,7 @@
 	else
 	{
 		<div class="row row-cols-1 row-cols-md-3 g-4">
-			@foreach (var item in Model)
+			@foreach (var item in Model.Products)
 			{
 				<div class="col">
 					<div class="card h-100 shadow-sm border-0">
@@ -74,78 +69,49 @@
 										<i class="bi bi-cart-plus"></i> Add to Cart
 									</button>
 								</form>
-
 							</div>
 						</div>
 					</div>
 				</div>
 			}
 		</div>
-	}
-</div>
 
-	<div class="row row-cols-1 row-cols-md-3 g-4">
-		@foreach (var item in Model.Products)
+		@* Pagination *@
+		@if (Model.PagingInfo.TotalPages > 1)
 		{
-			<div class="col">
-				<div class="card h-100 shadow-sm border-0">
-					<img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
-					<div class="card-body text-center">
-						<span class="badge bg-secondary mb-2">@item.CategoryName</span>
-						<h5 class="card-title text-dark">@item.Name</h5>
-						<p class="card-text text-muted small">@item.ShortDescription</p>
-						<h6 class="text-success fw-bold">€ @item.Price.ToString("F2")</h6>
-					</div>
-					<div class="card-footer bg-white border-top-0 pb-3">
-						<div class="d-flex gap-2 w-100">
-							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm py-2 w-50 shadow-sm">
-								<i class="bi bi-eye"></i> View
-							</a>
-							<form asp-controller="Cart" asp-action="AddToCart" method="post" class="w-50 m-0 p-0 shadow-sm">
-								<input type="hidden" name="productId" value="@item.Id" />
-								<button type="submit" class="btn btn-success btn-sm py-2 w-100 h-100">
-									<i class="bi bi-cart-plus"></i> Add to Cart
-								</button>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
-
-	@* Pagination *@
-	@if (Model.PagingInfo.TotalPages > 1)
-	{
-		<nav class="mt-5 d-flex justify-content-center" aria-label="Product pages">
-			<ul class="pagination">
-				<li class="page-item @(Model.PagingInfo.CurrentPage == 1 ? "disabled" : "")">
-					<a class="page-link" asp-action="Index"
-					   asp-route-categoryId="@Model.CurrentCategory"
-					   asp-route-page="@(Model.PagingInfo.CurrentPage - 1)">
-						&laquo;
-					</a>
-				</li>
-
-				@for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
-				{
-					<li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+			<nav class="mt-5 d-flex justify-content-center" aria-label="Product pages">
+				<ul class="pagination">
+					<li class="page-item @(Model.PagingInfo.CurrentPage == 1 ? "disabled" : "")">
 						<a class="page-link" asp-action="Index"
 						   asp-route-categoryId="@Model.CurrentCategory"
-						   asp-route-page="@i">
-							@i
+						   asp-route-searchQuery="@ViewBag.SearchQuery"
+						   asp-route-page="@(Model.PagingInfo.CurrentPage - 1)">
+							&laquo;
 						</a>
 					</li>
-				}
 
-				<li class="page-item @(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages ? "disabled" : "")">
-					<a class="page-link" asp-action="Index"
-					   asp-route-categoryId="@Model.CurrentCategory"
-					   asp-route-page="@(Model.PagingInfo.CurrentPage + 1)">
-						&raquo;
-					</a>
-				</li>
-			</ul>
-		</nav>
+					@for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+					{
+						<li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+							<a class="page-link" asp-action="Index"
+							   asp-route-categoryId="@Model.CurrentCategory"
+							   asp-route-searchQuery="@ViewBag.SearchQuery"
+							   asp-route-page="@i">
+								@i
+							</a>
+						</li>
+					}
+
+					<li class="page-item @(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages ? "disabled" : "")">
+						<a class="page-link" asp-action="Index"
+						   asp-route-categoryId="@Model.CurrentCategory"
+						   asp-route-searchQuery="@ViewBag.SearchQuery"
+						   asp-route-page="@(Model.PagingInfo.CurrentPage + 1)">
+							&raquo;
+						</a>
+					</li>
+				</ul>
+			</nav>
+		}
 	}
 </div>
