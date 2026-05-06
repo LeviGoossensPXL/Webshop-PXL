@@ -16,9 +16,9 @@ namespace Webshop.website.Controllers
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
-        public async Task<IActionResult> Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId, string? searchQuery)
         {
-            var productsResult = await _shopService.GetProducts(categoryId);
+            var productsResult = await _shopService.GetProducts(categoryId, searchQuery);
             var categories = await _shopService.GetCategories();
 
             var viewModelList = productsResult.Data.Select(p => new ProductListViewModel
@@ -33,6 +33,7 @@ namespace Webshop.website.Controllers
 
             ViewBag.Categories = categories;
             ViewBag.CurrentCategory = categoryId ?? 0;
+            ViewBag.SearchQuery = searchQuery;
 
             return View(viewModelList);
         }
