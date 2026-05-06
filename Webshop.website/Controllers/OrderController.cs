@@ -25,7 +25,7 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> MyOrders()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var result = await _orderService.GetOrdersByUserId(userId);
