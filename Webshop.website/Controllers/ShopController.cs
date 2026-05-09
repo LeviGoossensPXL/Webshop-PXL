@@ -19,32 +19,9 @@ namespace Webshop.website.Controllers
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
-        public async Task<IActionResult> Index1(int? categoryId, int page = 1)
+        public async Task<IActionResult> Index(int? categoryId, string? searchQuery, int page = 1)
         {
-            var productsResult = await _shopService.GetProducts(categoryId);
-            var categories = await _shopService.GetCategories();
-
-            var viewModelList = productsResult.Data.Select(p => new ProductListViewModel
-            {
-                Id = p.ProductId,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                ImageUrl = p.ImageUrl,
-                CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
-            }).ToList();
-
-            ViewBag.Categories = categories;
-            ViewBag.CurrentCategory = categoryId ?? 0;
-
-            return View(viewModelList);
-        }
-
-        // GET: Shop/Index (De catalogus voor de klant met filters)
-        [HttpGet]
-        public async Task<IActionResult> Index(int? categoryId, int page = 1)
-        {
-            var result = await _shopService.GetProducts(categoryId);
+            var result = await _shopService.GetProducts(categoryId, searchQuery);
 
             var paging = _pageService.GetPaging(result.Data, page);
 
@@ -62,6 +39,7 @@ namespace Webshop.website.Controllers
                 });
 
             ViewBag.Categories = categories;
+            ViewBag.SearchQuery = searchQuery;
 
             return View(new ShopIndexViewModel
             {

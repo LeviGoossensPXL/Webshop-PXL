@@ -16,13 +16,20 @@ namespace Webshop.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<ServiceResultOfT<IEnumerable<Product>>> GetProducts(int? categoryId = null)
+        public async Task<ServiceResultOfT<IEnumerable<Product>>> GetProducts(int? categoryId = null, string? searchQuery = null)
         {
             var result = new ServiceResultOfT<IEnumerable<Product>>();
             var products = await _productRepository.GetAll();
 
             if (categoryId.HasValue && categoryId.Value > 0)
                 products = products.Where(p => p.CategoryId == categoryId.Value);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var query = searchQuery.Trim().ToLower();
+                products = products.Where(p => 
+                    (p.Name != null && p.Name.ToLower().Contains(query)));
+            }
 
             var sorted = products
                 .OrderBy(p => p.CategoryId)
