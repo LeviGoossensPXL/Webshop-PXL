@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Webshop.Application.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Webshop.Application.Services;
+using Webshop.Application.Services.Contracts;
 using Webshop.website.ViewModels;
 
 namespace Webshop.website.Controllers
@@ -7,58 +8,56 @@ namespace Webshop.website.Controllers
     // This controller is for the customer side
     public class ShopController : Controller
     {
-        private readonly IProductRepository _productRepository;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IShopService _shopService;
+        private readonly IPageService _pageService;
 
-        public ShopController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ShopController(IShopService shopService, IPageService pageService)
         {
-            _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
+            _shopService = shopService;
+            _pageService = pageService;
         }
 
         // GET: Shop/Index (De catalogus voor de klant met filters)
         [HttpGet]
-        public async Task<IActionResult> Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId, string? searchQuery, int page = 1)
         {
-            var products = await _productRepository.GetAll();
-            var categories = await _categoryRepository.GetAll();
+            var result = await _shopService.GetProducts(categoryId, searchQuery);
 
+            var paging = _pageService.GetPaging(result.Data, page);
 
-            var sortedProducts = products
-                .OrderBy(p => p.CategoryId)
-                .ThenByDescending(p => p.ProductId)
-                .AsEnumerable();
+            var categories = await _shopService.GetCategories();
 
-
-            if (categoryId.HasValue && categoryId > 0)
-            {
-                sortedProducts = sortedProducts.Where(p => p.CategoryId == categoryId.Value);
-            }
-
-            var viewModelList = sortedProducts.Select(p => new ProductListViewModel
-            {
-                Id = p.ProductId,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                ImageUrl = p.ImageUrl,
-                CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
-            }).ToList();
+            var viewModelList = paging
+                .list.Select(p => new ProductListViewModel
+                {
+                    Id = p.ProductId,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ImageUrl = p.ImageUrl,
+                    CategoryName = categories.FirstOrDefault(c => c.CategoryId == p.CategoryId)?.Name ?? "Unknown"
+                });
 
             ViewBag.Categories = categories;
-            ViewBag.CurrentCategory = categoryId ?? 0;
+            ViewBag.SearchQuery = searchQuery;
 
-            return View(viewModelList);
+            return View(new ShopIndexViewModel
+            {
+                Products = viewModelList,
+                PagingInfo = paging.pageInfo,
+                CurrentCategory = categoryId
+            });
         }
 
         // GET: Shop/Details/5 (Product details for the customer)
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productRepository.GetById(id);
-            if (product == null) return NotFound();
+            var productResult = await _shopService.GetProductById(id);
+            if (!productResult.Succeeded) return NotFound();
 
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _shopService.GetCategories();
+            var product = productResult.Data;
 
             var viewModel = new ProductDetailViewModel
             {

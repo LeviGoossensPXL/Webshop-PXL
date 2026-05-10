@@ -1,10 +1,4 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model IEnumerable<Webshop.website.ViewModels.ProductListViewModel>
+@model Webshop.website.ViewModels.ShopIndexViewModel
 
 @{
 	ViewData["Title"] = "Outdoor Adventure Catalog";
@@ -13,57 +7,111 @@
 <div class="container mt-4">
 	<div class="d-flex justify-content-between align-items-center mb-4">
 		<h2>Outdoor Adventure Store</h2>
-
+		<form id="searchForm" method="get" asp-action="Index" class="d-flex w-50 shadow-sm rounded-pill bg-white border">
+			<input type="hidden" name="categoryId" value="@Model.CurrentCategory" />
+			<span class="d-flex align-items-center ps-3 text-muted">
+				<i class="bi bi-search"></i>
+			</span>
+			<input type="text" id="searchInput" name="searchQuery" class="form-control border-0 bg-transparent shadow-none py-2 px-3" placeholder="Search for gear, clothing, etc..." value="@ViewBag.SearchQuery" autocomplete="off" />
+			<button type="submit" class="btn btn-dark rounded-pill px-4 m-1 fw-semibold transition-all">
+				Search
+			</button>
+		</form>
 	</div>
 
 	@* Category Filter Buttons *@
 	<div class="d-flex flex-wrap gap-2 mb-4">
-		<a asp-action="Index" asp-route-categoryId=""
-		   class="btn @(ViewBag.CurrentCategory == 0 ? "btn-dark" : "btn-outline-dark") rounded-pill px-4 fw-bold">
+		<a asp-action="Index" asp-route-categoryId="" asp-route-searchQuery="@ViewBag.SearchQuery" asp-route-page="1"
+		   class="btn @(Model.CurrentCategory == null || Model.CurrentCategory == 0 ? "btn-dark" : "btn-outline-dark") rounded-pill px-4 fw-bold">
 			All
 		</a>
 
 		@foreach (var category in (IEnumerable<Webshop.Domain.Entities.Category>)ViewBag.Categories)
 		{
-			<a asp-action="Index" asp-route-categoryId="@category.CategoryId"
-			   class="btn @(ViewBag.CurrentCategory == category.CategoryId ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">
+			<a asp-action="Index" asp-route-categoryId="@category.CategoryId" asp-route-searchQuery="@ViewBag.SearchQuery" asp-route-page="1"
+			   class="btn @(Model.CurrentCategory == category.CategoryId ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">
 				@category.Name
 			</a>
 		}
 	</div>
-	<div class="row row-cols-1 row-cols-md-3 g-4">
-		@foreach (var item in Model)
-		{
-			<div class="col">
-				<div class="card h-100 shadow-sm border-0">
-					<img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
-					<div class="card-body text-center">
-						<span class="badge bg-secondary mb-2">@item.CategoryName</span>
-						<h5 class="card-title text-dark">@item.Name</h5>
-						<p class="card-text text-muted small">@item.ShortDescription</p>
-						<h6 class="text-success fw-bold">€ @item.Price.ToString("F2")</h6>
-					</div>
-					<div class="card-footer bg-white border-top-0 pb-3">
-						@* Gebruik d-flex in plaats van btn-group om de knop en het formulier mooi naast elkaar te zetten *@
-						<div class="d-flex gap-2 w-100">
 
-							@* View knop (Blijft een normale GET link) *@
-							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm py-2 w-50 shadow-sm">
-								<i class="bi bi-eye"></i> View
-							</a>
-
-							@* Add to Cart formulier (POST request) *@
-							<form asp-controller="Cart" asp-action="AddToCart" method="post" class="w-50 m-0 p-0 shadow-sm">
-								<input type="hidden" name="productId" value="@item.Id" />
-								<button type="submit" class="btn btn-success btn-sm py-2 w-100 h-100">
-									<i class="bi bi-cart-plus"></i> Add to Cart
-								</button>
-							</form>
-
+	@if (!Model.Products.Any())
+	{
+		<div class="text-center py-5 bg-white rounded shadow-sm border my-4">
+			<i class="bi bi-search text-muted mb-3 d-block" style="font-size: 3rem;"></i>
+			<h4 class="text-dark fw-bold">No Products Found</h4>
+			<p class="text-muted mb-4">We couldn't find any products matching your search or selected category.</p>
+			<a asp-action="Index" class="btn btn-dark rounded-pill px-4">Clear Search & View All</a>
+		</div>
+	}
+	else
+	{
+		<div class="row row-cols-1 row-cols-md-3 g-4">
+			@foreach (var item in Model.Products)
+			{
+				<div class="col">
+					<div class="card h-100 shadow-sm border-0">
+						<img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
+						<div class="card-body text-center">
+							<span class="badge bg-secondary mb-2">@item.CategoryName</span>
+							<h5 class="card-title text-dark">@item.Name</h5>
+							<p class="card-text text-muted small">@item.ShortDescription</p>
+							<h6 class="text-success fw-bold">€ @item.Price.ToString("F2")</h6>
+						</div>
+						<div class="card-footer bg-white border-top-0 pb-3">
+							<div class="d-flex gap-2 w-100">
+								<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm py-2 w-50 shadow-sm">
+									<i class="bi bi-eye"></i> View
+								</a>
+								<form asp-controller="Cart" asp-action="AddToCart" method="post" class="w-50 m-0 p-0 shadow-sm">
+									<input type="hidden" name="productId" value="@item.Id" />
+									<button type="submit" class="btn btn-success btn-sm py-2 w-100 h-100">
+										<i class="bi bi-cart-plus"></i> Add to Cart
+									</button>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			}
+		</div>
+
+		@* Pagination *@
+		@if (Model.PagingInfo.TotalPages > 1)
+		{
+			<nav class="mt-5 d-flex justify-content-center" aria-label="Product pages">
+				<ul class="pagination">
+					<li class="page-item @(Model.PagingInfo.CurrentPage == 1 ? "disabled" : "")">
+						<a class="page-link" asp-action="Index"
+						   asp-route-categoryId="@Model.CurrentCategory"
+						   asp-route-searchQuery="@ViewBag.SearchQuery"
+						   asp-route-page="@(Model.PagingInfo.CurrentPage - 1)">
+							&laquo;
+						</a>
+					</li>
+
+					@for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+					{
+						<li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+							<a class="page-link" asp-action="Index"
+							   asp-route-categoryId="@Model.CurrentCategory"
+							   asp-route-searchQuery="@ViewBag.SearchQuery"
+							   asp-route-page="@i">
+								@i
+							</a>
+						</li>
+					}
+
+					<li class="page-item @(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages ? "disabled" : "")">
+						<a class="page-link" asp-action="Index"
+						   asp-route-categoryId="@Model.CurrentCategory"
+						   asp-route-searchQuery="@ViewBag.SearchQuery"
+						   asp-route-page="@(Model.PagingInfo.CurrentPage + 1)">
+							&raquo;
+						</a>
+					</li>
+				</ul>
+			</nav>
 		}
-	</div>
+	}
 </div>
