@@ -75,7 +75,7 @@ namespace Webshop.website.Controllers
             }
 
             // Security check: Only Admin or the owner can see the details
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
             bool isAdmin = User.IsInRole("Admin");
 
             if (!isAdmin && result.Data.UserId != userId)
