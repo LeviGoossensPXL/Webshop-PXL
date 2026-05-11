@@ -31,7 +31,7 @@
                     {
                         <tr>
                             <td>#@order.OrderId</td>
-                            <td>@order.OrderDate.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>@order.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
                             <td>
                                 @{
                                     var badgeClass = order.Status switch
