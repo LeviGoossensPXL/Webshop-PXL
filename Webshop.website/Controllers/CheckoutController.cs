@@ -14,11 +14,13 @@ namespace Webshop.website.Controllers
     {
         private readonly ICheckoutService _checkoutService;
         private readonly ICartService _cartService;
+        private readonly IIdentityService _identityService;
 
-        public CheckoutController(ICheckoutService checkoutService, ICartService cartService)
+        public CheckoutController(ICheckoutService checkoutService, ICartService cartService, IIdentityService identityService)
         {
             _checkoutService = checkoutService;
             _cartService = cartService;
+            _identityService = identityService;
         }
 
         // GET: Checkout/Index
@@ -123,8 +125,8 @@ namespace Webshop.website.Controllers
                 Country = model.Country
             };
 
-            // Use the unique ID (NameIdentifier) instead of the name/email to ensure consistency with My Orders filter
-            string userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "GuestCustomer";
+            // Use the identity service to ensure the user is synced and get the correct local ID
+            string userId = await _identityService.EnsureExternalUserAsync(User) ?? "GuestCustomer";
 
             // Create the actual order in the database now that we are sure the payment process is complete
             int orderId = await _checkoutService.CreateOrderAndConfirmAsync(address, userId);

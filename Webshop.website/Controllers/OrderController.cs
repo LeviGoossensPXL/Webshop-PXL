@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Webshop.Application.Repositories;
 using Webshop.Application.Services.Contracts;
 using Webshop.Domain.Entities;
@@ -13,19 +15,21 @@ namespace Webshop.website.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IAppUserRepository _userRepository;
+        private readonly IIdentityService _identityService;
 
 
-        public OrderController(IOrderService orderService, IAppUserRepository userRepository)
+        public OrderController(IOrderService orderService, IAppUserRepository userRepository, IIdentityService identityService)
         {
             _orderService = orderService;
             _userRepository = userRepository;
+            _identityService = identityService;
         }
 
         // GET: Order/MyOrders (For Customers)
         [HttpGet]
         public async Task<IActionResult> MyOrders()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            var userId = await _identityService.EnsureExternalUserAsync(User);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var result = await _orderService.GetOrdersByUserId(userId);
@@ -75,7 +79,7 @@ namespace Webshop.website.Controllers
             }
 
             // Security check: Only Admin or the owner can see the details
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            var userId = await _identityService.EnsureExternalUserAsync(User);
             bool isAdmin = User.IsInRole("Admin");
 
             if (!isAdmin && result.Data.UserId != userId)

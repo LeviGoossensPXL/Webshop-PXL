@@ -144,8 +144,11 @@ namespace Webshop.website.Controllers
         [HttpGet]
         public async Task<IActionResult> PostLogin(string returnUrl = "/")
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
+                // Ensure the external user exists in our local database
+                await _identityService.EnsureExternalUserAsync(User);
+
                 if (User.IsInRole("Admin"))
                 {
                     return RedirectToAction("Index", "Product");
