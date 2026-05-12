@@ -14,11 +14,13 @@ public class StockController : Controller
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IProductService _productService;
     private readonly StockMapper _mapper = new();
+    private readonly ICategoryService _categoryService;
 
-    public StockController(IHttpClientFactory httpClientFactory, IProductService productService)
+    public StockController(IHttpClientFactory httpClientFactory, IProductService productService, ICategoryService categoryService)
     {
         _httpClientFactory = httpClientFactory;
         _productService = productService;
+        _categoryService = categoryService;
     }
 
     // GET: Stock
@@ -68,6 +70,12 @@ public class StockController : Controller
     {
         if (!ModelState.IsValid)
             return View(model);
+        var productResult = await _productService.GetById(model.ProductId);
+        if (!productResult.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, "No product found with that info.");
+            return View(model);
+        }
 
         var stockItem = _mapper.ToStockItem(model);
 
@@ -75,6 +83,13 @@ public class StockController : Controller
         var response = await client.PutAsJsonAsync($"/StockItem/product/{model.ProductId}", stockItem);
 
         if (!response.IsSuccessStatusCode)
+        {
+            ModelState.AddModelError(string.Empty, "Failed to update stock. Please try again.");
+            return View(model);
+        }
+        productResult.Data.Sku = model.Sku!;
+        var updateProductResult = await _productService.Update(productResult.Data, null, null);
+        if (!updateProductResult.Succeeded)
         {
             ModelState.AddModelError(string.Empty, "Failed to update stock. Please try again.");
             return View(model);
