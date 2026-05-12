@@ -34,6 +34,7 @@ public class StockController : Controller
         var viewModelList = stockItems.Select(s =>
         {
             var vm = _mapper.ToListViewModel(s);
+            vm.Sku = productsResult.Data.First(p => p.ProductId == s.ProductId).Sku;
             vm.ProductName = productMap.TryGetValue(s.ProductId, out var name) ? name : $"Product #{s.ProductId}";
             return vm;
         }).OrderBy(s => s.ProductName).ToList();
@@ -55,6 +56,7 @@ public class StockController : Controller
         var productName = productResult.Succeeded ? productResult.Data.Name : $"Product #{id}";
 
         var model = _mapper.ToEditViewModel(stockItem);
+        model.Sku = productResult.Data.Sku;
         model.ProductName = productName;
 
         return View(model);
