@@ -22,7 +22,6 @@ namespace WebApi.Data
                 entity.HasKey(s => s.StockItemId);
                 entity.Property(s => s.ProductId).IsRequired();
                 entity.HasIndex(s => s.ProductId);
-                entity.HasIndex(s => s.Sku);
             });
         }
     }
