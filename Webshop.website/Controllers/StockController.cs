@@ -32,11 +32,13 @@ public class StockController : Controller
 
         var productsResult = await _productService.GetAll(null);
         var productMap = productsResult.Data.ToDictionary(p => p.ProductId, p => p.Name);
-
+        var categories = await _categoryService.GetAll();
         var viewModelList = stockItems.Select(s =>
         {
             var vm = _mapper.ToListViewModel(s);
-            vm.Sku = productsResult.Data.First(p => p.ProductId == s.ProductId).Sku;
+            var prod = productsResult.Data.First(p => p.ProductId == s.ProductId);
+            vm.Sku = prod.Sku;
+            vm.Category = categories.First(category => category.CategoryId == prod.CategoryId).Name;
             vm.ProductName = productMap.TryGetValue(s.ProductId, out var name) ? name : $"Product #{s.ProductId}";
             return vm;
         }).OrderBy(s => s.ProductName).ToList();

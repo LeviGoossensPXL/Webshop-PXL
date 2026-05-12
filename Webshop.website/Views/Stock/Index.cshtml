@@ -17,6 +17,7 @@
                         <tr>
                             <th class="ps-4">Product</th>
                             <th>SKU</th>
+                            <th>Category</th>
                             <th>Warehouse Location</th>
                             <th>Quantity</th>
                             <th class="text-end pe-4">Actions</th>
@@ -28,6 +29,7 @@
                             <tr>
                                 <td class="ps-4 fw-bold">@item.ProductName <span class="text-muted fw-normal">(#@item.ProductId)</span></td>
                                 <td class="text-muted">@(item.Sku ?? "-")</td>
+                                <td class="text-muted">@(item.Category)</td>
                                 <td class="text-muted">@(item.WarehouseLocation ?? "-")</td>
                                 <td>
                                     @switch (item.Quantity)
