@@ -1,0 +1,51 @@
+@model Webshop.website.ViewModels.StockEditViewModel
+
+@{
+    ViewData["Title"] = "Edit Stock";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white py-3">
+                    <h4 class="mb-0 text-center text-white">Edit Stock — @Model.ProductName</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="StockItemId" />
+                        <input type="hidden" asp-for="ProductId" />
+                        <input type="hidden" asp-for="ProductName" />
+
+                        <div class="mb-3">
+                            <label asp-for="Sku" class="form-label fw-bold">SKU</label>
+                            <input asp-for="Sku" class="form-control" />
+                            <span asp-validation-for="Sku" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Quantity" class="form-label fw-bold">Quantity</label>
+                            <input asp-for="Quantity" type="number" min="0" class="form-control" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="WarehouseLocation" class="form-label fw-bold">Warehouse Location</label>
+                            <input asp-for="WarehouseLocation" class="form-control" />
+                            <span asp-validation-for="WarehouseLocation" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-warning text-white px-5">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
