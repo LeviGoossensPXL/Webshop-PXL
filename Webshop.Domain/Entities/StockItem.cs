@@ -11,7 +11,6 @@ namespace Webshop.Domain.Entities
     {
         [Key]
         public int StockItemId { get; set; }
-        public string? Sku { get; set; }
         public int Quantity { get; set; }
         public string? WarehouseLocation { get; set; }
 
