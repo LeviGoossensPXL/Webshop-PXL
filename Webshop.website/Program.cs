@@ -101,6 +101,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseBlazorFrameworkFiles(); // Serve WebAssembly files from Webshop.Client
 app.UseStaticFiles();
 
 app.UseRouting();
