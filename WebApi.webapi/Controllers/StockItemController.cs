@@ -55,7 +55,6 @@ namespace WebApi.Controllers
             StockItem stockItem = new StockItem()
             {
                 Quantity = createStockItem.Quantity,
-                Sku = createStockItem.Sku,
                 WarehouseLocation = createStockItem.WarehouseLocation,
                 ProductId = createStockItem.ProductId
             };
@@ -112,7 +111,6 @@ namespace WebApi.Controllers
 
             stock.Quantity = updatedStock.Quantity;
             stock.WarehouseLocation = updatedStock.WarehouseLocation;
-            stock.Sku = updatedStock.Sku;
 
             await _context.SaveChangesAsync();
 

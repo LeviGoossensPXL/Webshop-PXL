@@ -89,6 +89,42 @@ namespace Webshop.Application.Services
             return result;
         }
 
+        public async Task<string?> EnsureExternalUserAsync(ClaimsPrincipal principal)
+        {
+            var email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue("email") ?? principal.Identity?.Name;
+            var sub = principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? principal.FindFirstValue("sub");
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(sub))
+            {
+                return null;
+            }
+
+            var user = await _userManager.FindByIdAsync(sub);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    user = new AppUser
+                    {
+                        Id = sub,
+                        UserName = email,
+                        Email = email,
+                        EmailConfirmed = true
+                    };
+                    await _userManager.CreateAsync(user);
+                }
+                else
+                {
+                    // If user exists by email but has a different ID, we should ideally link them.
+                    // For now, we return the existing user's ID to ensure they can see their orders if they previously registered.
+                    return user.Id;
+                }
+            }
+
+            return user.Id;
+        }
+
         public async Task SignOutAsync()
         {
             await _signInManager.SignOutAsync();
