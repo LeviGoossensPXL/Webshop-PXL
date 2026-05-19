@@ -66,11 +66,13 @@
 						<label class="form-label">Initial Stock Quantity</label>
 						<InputNumber @bind-Value="initialStock" class="form-control" />
 						<small class="text-muted">How many units are you adding to the warehouse?</small>
+						<ValidationMessage For="@(() => initialStock)" class="text-danger" />
 					</div>
 					<div class="col-md-6 mb-3">
 						<label class="form-label">Warehouse Location</label>
 						<InputText @bind-Value="warehouseLocation" class="form-control" placeholder="e.g. Warehouse A" />
 						<small class="text-muted">Specify the warehouse or location for this stock.</small>
+						<ValidationMessage For="@(() => warehouseLocation)" class="text-danger" />
 					</div>
 				</div>
 
@@ -109,6 +111,13 @@
 		public int CategoryId { get; set; }
 
 		public string? ImageUrl { get; set; }
+
+		[Required(ErrorMessage = "An initial stock quantity is required.")]
+		[Range(1, 10000, ErrorMessage = "The stock quantity must be at least 1.")]
+		public int InitialStock { get; set; } = 1;
+
+		[Required(ErrorMessage = "The warehouse location is required.")]
+		public string WarehouseLocation { get; set; } = "Default Warehouse";
 	}
 
 	protected override async Task OnInitializedAsync()
