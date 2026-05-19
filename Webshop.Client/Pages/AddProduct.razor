@@ -1,0 +1,169 @@
+@using Webshop.Domain.Entities
+@using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+	<div class="row justify-content-center">
+		<div class="col-md-6 border p-4 bg-white shadow-sm rounded">
+			<h2 class="text-center mb-4 text-success">Register New Gear (WebAssembly)</h2>
+
+			<EditForm Model="@newProduct" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+
+				<div class="mb-3">
+					<label class="form-label">Product Name</label>
+					<InputText @bind-Value="newProduct.Name" class="form-control" placeholder="e.g. Waterproof Tent" />
+					<ValidationMessage For="@(() => newProduct.Name)" class="text-danger" />
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Category</label>
+					<InputSelect @bind-Value="newProduct.CategoryId" class="form-select">
+						<option value="0">-- Choose Category --</option>
+						@if (categories != null)
+						{
+							@foreach (var cat in categories)
+							{
+								<option value="@cat.CategoryId">@cat.Name</option>
+							}
+						}
+					</InputSelect>
+					<ValidationMessage For="@(() => newProduct.CategoryId)" class="text-danger" />
+				</div>
+
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Price (€)</label>
+						<InputNumber @bind-Value="newProduct.Price" class="form-control" />
+						<ValidationMessage For="@(() => newProduct.Price)" class="text-danger" />
+					</div>
+					<div class="col-md-6 mb-3">
+						<label class="form-label">SKU / Code</label>
+						<InputText @bind-Value="newProduct.Sku" class="form-control" />
+						<ValidationMessage For="@(() => newProduct.Sku)" class="text-danger" />
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Full Description</label>
+					<InputTextArea @bind-Value="newProduct.Description" class="form-control" rows="3" />
+					<ValidationMessage For="@(() => newProduct.Description)" class="text-danger" />
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Image URL</label>
+					<InputText @bind-Value="newProduct.ImageUrl" class="form-control" placeholder="/images/default.jpg" />
+				</div>
+
+				<hr class="my-3" />
+				<h5 class="text-muted mb-3">📦 Stock Information</h5>
+
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Initial Stock Quantity</label>
+						<InputNumber @bind-Value="initialStock" class="form-control" />
+						<small class="text-muted">How many units are you adding to the warehouse?</small>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Warehouse Location</label>
+						<InputText @bind-Value="warehouseLocation" class="form-control" placeholder="e.g. Warehouse A" />
+						<small class="text-muted">Specify the warehouse or location for this stock.</small>
+					</div>
+				</div>
+
+				<div class="d-grid gap-2">
+					<button type="submit" class="btn btn-success">Save Product</button>
+					<button type="button" class="btn btn-outline-secondary" @onclick='() => NavigationManager.NavigateTo("/Product", forceLoad: true)'>Cancel</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+@code {
+	private ProductFormModel newProduct = new ProductFormModel();
+	private IEnumerable<Category> categories = new List<Category>();
+	private int initialStock = 1;
+	private string warehouseLocation = "Default Warehouse";
+
+	public class ProductFormModel
+	{
+		[Required(ErrorMessage = "The product name is required.")]
+		public string Name { get; set; }
+
+		[Required(ErrorMessage = "An explanation is required.")]
+		[MinLength(10, ErrorMessage = "The explanation is too short. It must be at least 10 characters long.")]
+		public string Description { get; set; }
+
+		[Required(ErrorMessage = "The price is required.")]
+		[Range(0.1, 10000, ErrorMessage = "The price must be greater than 0.")]
+		public decimal Price { get; set; }
+
+		[Required(ErrorMessage = "The SKU is required.")]
+		public string Sku { get; set; }
+
+		[Range(1, int.MaxValue, ErrorMessage = "Please select a category.")]
+		public int CategoryId { get; set; }
+
+		public string? ImageUrl { get; set; }
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		// WebAssembly: fetch categories via HTTP instead of direct service call
+		categories = await Http.GetFromJsonAsync<List<Category>>("api/ProductApi/categories");
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			var createdProduct = new Product
+			{
+				Name = newProduct.Name,
+				Description = newProduct.Description,
+				Price = newProduct.Price,
+				Sku = newProduct.Sku,
+				CategoryId = newProduct.CategoryId,
+				ImageUrl = string.IsNullOrWhiteSpace(newProduct.ImageUrl) ? "/images/default.jpg" : newProduct.ImageUrl
+			};
+			createdProduct.ProductId = 0;
+
+			// Save product via the API (instead of direct service call)
+			var response = await Http.PostAsJsonAsync("api/ProductApi", createdProduct);
+
+			if (response.IsSuccessStatusCode)
+			{
+				// Read back the product with its generated ProductId
+				var savedProduct = await response.Content.ReadFromJsonAsync<Product>();
+
+				// Create stock entry in the Stock Web API
+				var newStock = new StockItem
+				{
+					ProductId = savedProduct?.ProductId ?? 0,
+					Quantity = initialStock,
+					Sku = createdProduct.Sku ?? "NO-SKU",
+					WarehouseLocation = string.IsNullOrWhiteSpace(warehouseLocation) ? "Default Warehouse" : warehouseLocation
+				};
+
+				// Send POST to Stock Web API
+				var stockClient = new HttpClient { BaseAddress = new Uri("http://localhost:8078") };
+				await stockClient.PostAsJsonAsync("/StockItem", newStock);
+
+				NavigationManager.NavigateTo("/Product", forceLoad: true);
+			}
+			else
+			{
+				var error = await response.Content.ReadAsStringAsync();
+				Console.WriteLine($"Product API Error: {error}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"ERROR (Submit): {ex.Message}");
+		}
+	}
+}
