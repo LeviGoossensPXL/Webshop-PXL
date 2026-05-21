@@ -19,12 +19,13 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.17.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
-    <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.12" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Webshop.Domain\Webshop.Domain.csproj" />
     <ProjectReference Include="..\Webshop.Infrastructure\Webshop.Infrastructure.csproj" />
+    <ProjectReference Include="..\Webshop.Client\Webshop.Client.csproj" />
   </ItemGroup>
 
 </Project>

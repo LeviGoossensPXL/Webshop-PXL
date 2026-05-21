@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -108,7 +108,14 @@
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
-	<script src="/_framework/blazor.server.js"></script>
+	@if (ViewData["UseWasm"] != null && (bool)ViewData["UseWasm"])
+	{
+		<script src="/_framework/blazor.webassembly.js"></script>
+	}
+	else
+	{
+		<script src="/_framework/blazor.server.js"></script>
+	}
 	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

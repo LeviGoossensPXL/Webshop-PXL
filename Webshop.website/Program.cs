@@ -110,6 +110,7 @@ forwardedOptions.KnownNetworks.Clear();
 forwardedOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedOptions);
 
+app.UseBlazorFrameworkFiles(); // Serve WebAssembly files from Webshop.Client
 app.UseStaticFiles();
 
 app.UseRouting();
