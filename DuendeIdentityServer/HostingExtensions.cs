@@ -26,7 +26,7 @@ namespace DuendeIdentityServer
                 {
                     // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
                     options.EmitStaticAudienceClaim = true;
-                    options.IssuerUri = "https://localhost:5001";
+                    options.IssuerUri = "http://webshop.duende:8080";
                 })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)

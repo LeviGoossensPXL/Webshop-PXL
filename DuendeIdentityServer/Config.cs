@@ -34,8 +34,8 @@ namespace DuendeIdentityServer
                         // allow the application to request refresh tokens to keep users logged in
                         AllowOfflineAccess = true,
 
-                        RedirectUris = { "https://localhost:7117/signin-oidc" },
-                        PostLogoutRedirectUris = { "https://localhost:7117/signout-callback-oidc" },
+                        RedirectUris = { "http://localhost:8077/signin-oidc" },
+                        PostLogoutRedirectUris = { "http://localhost:8077/signout-callback-oidc" },
 
                         AllowedScopes = { "openid", "profile", "email", "roles" },
                         AlwaysIncludeUserClaimsInIdToken = true

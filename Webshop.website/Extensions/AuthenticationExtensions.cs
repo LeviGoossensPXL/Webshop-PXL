@@ -8,6 +8,7 @@ public static class AuthenticationExtensions
     public static void AddProjectAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var googleAuth = configuration.GetSection("Authentication:Google");
+        var duendeAuth = configuration.GetSection("Authentication:Duende");
 
         services.AddAuthentication(options =>
             {
@@ -23,10 +24,10 @@ public static class AuthenticationExtensions
             .AddOpenIdConnect("oidc", options =>
             {
                 options.SignInScheme = "Identity.Application";
-                options.Authority = "https://localhost:5001";
+                options.Authority = duendeAuth["Authority"] ?? "https://localhost:5001";
 
-                options.ClientId = "webshop_client";
-                options.ClientSecret = "super_secret_webshop_key";
+                options.ClientId = duendeAuth["ClientId"] ?? "webshop_client";
+                options.ClientSecret = duendeAuth["ClientSecret"] ?? "super_secret_webshop_key";
                 options.ResponseType = "code";
                 options.SaveTokens = true;
 
@@ -38,6 +39,23 @@ public static class AuthenticationExtensions
                 options.RequireHttpsMetadata = false;
                 options.MapInboundClaims = false;
                 options.ClaimActions.MapJsonKey("role", "role", "role");
+
+                // Discovery, keys, tokens and user info use the internal Authority.
+                // Only browser redirects need the publicly reachable Duende URL.
+                var publicAuthority = duendeAuth["PublicAuthority"]?.TrimEnd('/');
+                if (!string.IsNullOrWhiteSpace(publicAuthority))
+                {
+                    options.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        context.ProtocolMessage.IssuerAddress = $"{publicAuthority}/connect/authorize";
+                        return Task.CompletedTask;
+                    };
+                    options.Events.OnRedirectToIdentityProviderForSignOut = context =>
+                    {
+                        context.ProtocolMessage.IssuerAddress = $"{publicAuthority}/connect/endsession";
+                        return Task.CompletedTask;
+                    };
+                }
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
