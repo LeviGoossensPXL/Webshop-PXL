@@ -7,8 +7,8 @@ public static class AuthenticationExtensions
 {
     public static void AddProjectAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var googleAuth = configuration.GetSection("Authentication:Google");
-        var duendeAuth = configuration.GetSection("Authentication:Duende");
+        var googleAuth = configuration.GetSection("Auth:Google");
+        var duendeAuth = configuration.GetSection("Auth:Duende");
 
         services.AddAuthentication(options =>
             {
@@ -24,10 +24,10 @@ public static class AuthenticationExtensions
             .AddOpenIdConnect("oidc", options =>
             {
                 options.SignInScheme = "Identity.Application";
-                options.Authority = duendeAuth["Authority"] ?? "https://localhost:5001";
+                options.Authority = duendeAuth["Authority"]!;
 
-                options.ClientId = duendeAuth["ClientId"] ?? "webshop_client";
-                options.ClientSecret = duendeAuth["ClientSecret"] ?? "super_secret_webshop_key";
+                options.ClientId = duendeAuth["ClientId"]!;
+                options.ClientSecret = duendeAuth["ClientSecret"]!;
                 options.ResponseType = "code";
                 options.SaveTokens = true;
 
