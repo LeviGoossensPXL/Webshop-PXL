@@ -20,13 +20,13 @@ namespace DuendeIdentityServer
             new ApiScope[]
                 { };
 
-        public static IEnumerable<Client> Clients =>
-            new Client[]
+        public static IEnumerable<Client> GetClients(ConfigurationManager configuration) {
+            return new Client[]
                 { 
                     new Client
                     {
-                        ClientId = "webshop_client",
-                        ClientSecrets = { new Secret("super_secret_webshop_key".Sha256()) },
+                        ClientId = configuration["Auth:Duende:ClientId"]!,
+                        ClientSecrets = { new Secret(configuration["Auth:Duende:ClientSecret"]!.Sha256()) },
                         AllowedGrantTypes = GrantTypes.Code,
                     
                         // require Proof Key for Code Exchange (PKCE) for maximum security standard
@@ -34,12 +34,13 @@ namespace DuendeIdentityServer
                         // allow the application to request refresh tokens to keep users logged in
                         AllowOfflineAccess = true,
 
-                        RedirectUris = { "http://localhost:8077/signin-oidc" },
-                        PostLogoutRedirectUris = { "http://localhost:8077/signout-callback-oidc" },
+                        RedirectUris = { $"{configuration["WebsiteHost"]}/signin-oidc" },
+                        PostLogoutRedirectUris = { $"{configuration["WebsiteHost"]}/signout-callback-oidc" },
 
                         AllowedScopes = { "openid", "profile", "email", "roles" },
                         AlwaysIncludeUserClaimsInIdToken = true
                     }
                 };
+        }
     }
 }

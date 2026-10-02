@@ -26,11 +26,11 @@ namespace DuendeIdentityServer
                 {
                     // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
                     options.EmitStaticAudienceClaim = true;
-                    options.IssuerUri = "http://webshop.duende:8080";
+                    options.IssuerUri = builder.Configuration["Auth:Duende:Authority"];
                 })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients)
+                .AddInMemoryClients(Config.GetClients(builder.Configuration))
                 .AddAspNetIdentity<AppUser>();
 
             builder.Services.AddScoped<IIdentityService, IdentityService>();
