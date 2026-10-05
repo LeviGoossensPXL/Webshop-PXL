@@ -3,10 +3,10 @@ start:
 	podman compose up -Vd
 
 build:
-	podman compose build
+	podman compose build --build-arg BUILD_CONFIGURATION=Debug
 
 build-no-cache:
-	podman compose build --no-cache
+	podman compose build --build-arg BUILD_CONFIGURATION=Debug --no-cache
 
 remove-all:
 	podman compose down --remove-orphans
