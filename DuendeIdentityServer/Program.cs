@@ -1,4 +1,5 @@
-﻿using DuendeIdentityServer;
+﻿using DotNetEnv.Configuration;
+using DuendeIdentityServer;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -10,6 +11,8 @@ Log.Information("Starting up");
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    
+    builder.Configuration.AddDotNetEnv("../.env.local");
 
     builder.Host.UseSerilog((ctx, lc) => lc
         .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
