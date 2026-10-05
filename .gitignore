@@ -371,8 +371,10 @@ Webshop.website/wwwroot/images/*
 .idea
 
 # ignore environment variables
-*.env
-!*.example.env
+*.env*
+!.example.env
+!.example.env.docker
+!.example.env.local
 /DuendeIdentityServer/keys/
 
 # local file

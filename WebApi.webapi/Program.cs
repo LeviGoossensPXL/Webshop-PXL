@@ -11,7 +11,7 @@ using AppDbContext = WebApi.Data.AppDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddDotNetEnv("../");
+builder.Configuration.AddDotNetEnv("../.env.local");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
