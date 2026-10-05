@@ -21,6 +21,8 @@ services:
         condition: service_started
       webshop.duende:
         condition: service_started
+    env_file:
+      - .env.docker
   
   webshop.database:
     image: postgres:18
@@ -59,6 +61,8 @@ services:
     depends_on:
       webapi.database:
         condition: service_healthy
+    env_file:
+      - .env.docker
   
   webapi.database:
     image: postgres:18
@@ -97,6 +101,8 @@ services:
     depends_on:
       webshop.database:
         condition: service_healthy
+    env_file:
+      - .env.docker
 
 volumes:
   webshop-db:
