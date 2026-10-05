@@ -69,6 +69,16 @@ builder.Services.AddHttpClient("StockApi", client =>
     client.DefaultRequestHeaders.Add("X-Api-Key", builder.Configuration["WebApi:ApiKey"]);
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownProxies.Add(
+        System.Net.IPAddress.Parse(builder.Configuration["ProxyIP"]!));
+});
+
 var app = builder.Build();
 
 // Set the default culture to ensure consistent currency and date formatting
@@ -94,6 +104,8 @@ using (var scope = app.Services.CreateScope())
 }
 // ==========================================================
 
+app.UseForwardedHeaders();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -101,14 +113,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
-
-var forwardedOptions = new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-};
-forwardedOptions.KnownNetworks.Clear();
-forwardedOptions.KnownProxies.Clear();
-app.UseForwardedHeaders(forwardedOptions);
 
 app.UseBlazorFrameworkFiles(); // Serve WebAssembly files from Webshop.Client
 app.UseStaticFiles();
