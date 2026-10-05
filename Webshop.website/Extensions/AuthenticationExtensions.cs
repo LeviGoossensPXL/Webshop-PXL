@@ -29,7 +29,7 @@ public static class AuthenticationExtensions
                 options.ClientId = duendeAuth["ClientId"]!;
                 options.ClientSecret = duendeAuth["ClientSecret"]!;
                 options.ResponseType = "code";
-                options.SaveTokens = true;
+                options.SaveTokens = false;
 
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
