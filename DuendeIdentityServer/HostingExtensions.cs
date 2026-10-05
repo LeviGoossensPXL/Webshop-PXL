@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -33,6 +34,32 @@ namespace DuendeIdentityServer
                 .AddInMemoryClients(Config.GetClients(builder.Configuration))
                 .AddAspNetIdentity<AppUser>();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                // Cookies are shared across ports on localhost; keep the server's
+                // session separate from the webshop's Identity cookie.
+                options.Cookie.Name = ".Webshop.Duende.Identity";
+
+                // Browsers reject SameSite=None cookies without Secure. Local
+                // HTTP development needs Lax so the authorize callback sees login.
+                options.Cookie.SameSite = builder.Environment.IsDevelopment()
+                    ? SameSiteMode.Lax
+                    : SameSiteMode.None;
+                options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+                    ? CookieSecurePolicy.SameAsRequest
+                    : CookieSecurePolicy.Always;
+            });
+            
+            builder.Services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor |
+                    ForwardedHeaders.XForwardedProto;
+
+                options.KnownProxies.Add(
+                    System.Net.IPAddress.Parse(builder.Configuration["ProxyIP"]!));
+            });
+
             builder.Services.AddScoped<IIdentityService, IdentityService>();
 
             return builder.Build();
@@ -48,6 +75,7 @@ namespace DuendeIdentityServer
             }
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseForwardedHeaders();
             app.UseIdentityServer();
             app.UseAuthorization();
             app.MapDefaultControllerRoute();
