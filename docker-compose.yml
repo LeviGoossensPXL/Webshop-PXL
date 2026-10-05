@@ -103,3 +103,8 @@ volumes:
   webapi-db:
 networks:
   webshop-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+          gateway: $ProxyIP
