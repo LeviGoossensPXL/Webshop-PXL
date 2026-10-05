@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: webapp.Dockerfile
     env_file:
-      - .env
+      - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
@@ -21,8 +21,6 @@ services:
         condition: service_started
       webshop.duende:
         condition: service_started
-    env_file:
-      - .env.docker
   
   webshop.database:
     image: postgres:18
@@ -50,7 +48,7 @@ services:
       context: .
       dockerfile: webapi.Dockerfile
     env_file:
-      - .env
+      - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__StockWebApiConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
@@ -61,8 +59,6 @@ services:
     depends_on:
       webapi.database:
         condition: service_healthy
-    env_file:
-      - .env.docker
   
   webapi.database:
     image: postgres:18
@@ -90,7 +86,7 @@ services:
       context: .
       dockerfile: ./DuendeIdentityServer/Duende.Dockerfile
     env_file:
-      - .env
+      - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
@@ -101,8 +97,6 @@ services:
     depends_on:
       webshop.database:
         condition: service_healthy
-    env_file:
-      - .env.docker
 
 volumes:
   webshop-db:
