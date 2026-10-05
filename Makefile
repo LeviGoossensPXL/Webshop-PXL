@@ -1,14 +1,18 @@
 start:
+	podman compose up webshop.database webapi.database -Vd
+	
+
+podman-start:
 	podman compose down
 	podman compose up -Vd
 
-build:
+podman-build:
 	podman compose build --build-arg BUILD_CONFIGURATION=Debug
 
-build-no-cache:
+podman-build-no-cache:
 	podman compose build --build-arg BUILD_CONFIGURATION=Debug --no-cache
 
-remove-all:
+podman-remove:
 	podman compose down --remove-orphans
 	podman container prune -f
 	podman image prune -af --external
