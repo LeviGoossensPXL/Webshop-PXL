@@ -1,16 +1,16 @@
 start:
-	podman compose up website.database webapi.database -Vd
+	podman compose --env-file .env.docker up website.database webapi.database -Vd
 	
 
 podman-start:
 	podman compose down
-	podman compose up -Vd
+	podman compose --env-file .env.docker up -Vd
 
 podman-build:
-	podman compose build --build-arg BUILD_CONFIGURATION=Debug
+	podman compose --env-file .env.docker build --build-arg BUILD_CONFIGURATION=Debug
 
 podman-build-no-cache:
-	podman compose build --build-arg BUILD_CONFIGURATION=Debug --no-cache
+	podman compose --env-file .env.docker build --build-arg BUILD_CONFIGURATION=Debug --no-cache
 
 podman-remove:
 	podman compose down --remove-orphans
