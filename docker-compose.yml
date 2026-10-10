@@ -8,7 +8,7 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__WebsiteDatabase=Host=website.database;Port=5432;Database=${WebsiteDatabase_Database};Username=${WebsiteDatabase_Username};Password=${WebsiteDatabase_Password}
+      - ConnectionStrings__WebsiteDB=Host=website.database;Port=5432;Database=${WebsiteDB_Database};Username=${WebsiteDB_Username};Password=${WebsiteDB_Password}
     networks:
       - webshop-network
     ports:
@@ -20,15 +20,15 @@ services:
   website.database:
     image: postgres:18
     environment:
-      - POSTGRES_DB=$WebsiteDatabase_Database
-      - POSTGRES_USER=$WebsiteDatabase_Username
-      - POSTGRES_PASSWORD=$WebsiteDatabase_Password
+      - POSTGRES_DB=$WebsiteDB_Database
+      - POSTGRES_USER=$WebsiteDB_Username
+      - POSTGRES_PASSWORD=$WebsiteDB_Password
     networks:
       - webshop-network
     volumes:
       - "website-db:/var/lib/postgresql"
     ports:
-      - "${WebsiteDatabase_Port}:5432"
+      - "${WebsiteDB_Port}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -44,7 +44,7 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__WebapiDatabase=Host=webapi.database;Port=5432;Database=${WebapiDatabase_Database};Username=${WebapiDatabase_Username};Password=${WebapiDatabase_Password}
+      - ConnectionStrings__WebapiDB=Host=webapi.database;Port=5432;Database=${WebapiDB_Database};Username=${WebapiDB_Username};Password=${WebapiDB_Password}
     networks:
       - webshop-network
     ports:
@@ -56,15 +56,15 @@ services:
   webapi.database:
     image: postgres:18
     environment:
-      - POSTGRES_DB=$WebapiDatabase_Database
-      - POSTGRES_USER=$WebapiDatabase_Username
-      - POSTGRES_PASSWORD=$WebapiDatabase_Password
+      - POSTGRES_DB=$WebapiDB_Database
+      - POSTGRES_USER=$WebapiDB_Username
+      - POSTGRES_PASSWORD=$WebapiDB_Password
     networks:
       - webshop-network
     volumes:
       - "webapi-db:/var/lib/postgresql"
     ports:
-      - "${WebapiDatabase_Port}:5432"
+      - "${WebapiDB_Port}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -80,6 +80,7 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__WebsiteDB=Host=website.database;Port=5432;Database=${WebsiteDB_Database};Username=${WebsiteDB_Username};Password=${WebsiteDB_Password}
     networks:
       - webshop-network
     ports:

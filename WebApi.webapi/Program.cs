@@ -15,7 +15,7 @@ builder.Configuration.AddDotNetEnv("../.env.local");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("WebapiDatabase"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("WebapiDB"));
 });
 builder.Services.AddScoped<IStockItemService, StockItemService>();
 builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
