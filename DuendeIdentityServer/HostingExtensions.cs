@@ -16,7 +16,7 @@ namespace DuendeIdentityServer
             // uncomment if you want to add a UI
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("AppConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("WebsiteDB")));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()

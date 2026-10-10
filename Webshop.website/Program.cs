@@ -20,7 +20,7 @@ builder.Configuration.AddDotNetEnv("../.env.local");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("WebsiteDB"));
 });
 
 // Add Identity setup for Users and Roles
@@ -66,7 +66,7 @@ builder.Services.AddHttpClient("StockApi", client =>
     // In Docker: http://webshop.webapi:8080, locally: http://localhost:8078
     var stockApiUrl = builder.Configuration["StockApiHost"]!;
     client.BaseAddress = new Uri(stockApiUrl);
-    client.DefaultRequestHeaders.Add("X-Api-Key", builder.Configuration["WebApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-Api-Key", builder.Configuration["WebApi:Apikey"]);
 });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
