@@ -3,7 +3,7 @@ services:
     image: docker.io/darklord200/webapp:latest
     build:
       context: .
-      dockerfile: webapp.Dockerfile
+      dockerfile: ./Webshop.website/Dockerfile
     env_file:
       - .env.docker
     environment:
@@ -39,7 +39,7 @@ services:
     image: docker.io/darklord200/webapi:latest
     build:
       context: .
-      dockerfile: webapi.Dockerfile
+      dockerfile: ./WebApi.webapi/Dockerfile
     env_file:
       - .env.docker
     environment:
@@ -75,7 +75,7 @@ services:
     image: docker.io/darklord200/duende:latest
     build:
       context: .
-      dockerfile: ./DuendeIdentityServer/Duende.Dockerfile
+      dockerfile: ./DuendeIdentityServer/Dockerfile
     env_file:
       - .env.docker
     environment:
