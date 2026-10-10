@@ -9,30 +9,25 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
       - "8077:8080"
     depends_on:
-      webshop.database:
+      website.database:
         condition: service_healthy
-      webshop.webapi:
-        condition: service_started
-      webshop.duende:
-        condition: service_started
   
-  webshop.database:
+  website.database:
     image: postgres:18
-    container_name: webshop.database
+    container_name: website.database
     environment:
-      - POSTGRES_DB=webshop
+      - POSTGRES_DB=website
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:
       - webshop-network
     volumes:
-      - "webshop-db:/var/lib/postgresql"
+      - "website-db:/var/lib/postgresql"
     ports:
       - "5331:5432"
     healthcheck:
@@ -51,7 +46,6 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__StockWebApiConnection=Host=webapi.database;Port=5432;Database=webapi;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
@@ -89,17 +83,16 @@ services:
       - .env.docker
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AppConnection=Host=webshop.database;Port=5432;Database=webshop;Username=postgres;Password=postgres
     networks:
       - webshop-network
     ports:
       - "8080:8080"
     depends_on:
-      webshop.database:
+      website.database:
         condition: service_healthy
 
 volumes:
-  webshop-db:
+  website-db:
   webapi-db:
 networks:
   webshop-network:

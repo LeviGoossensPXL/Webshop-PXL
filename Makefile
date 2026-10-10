@@ -1,5 +1,5 @@
 start:
-	podman compose up webshop.database webapi.database -Vd
+	podman compose up website.database webapi.database -Vd
 	
 
 podman-start:

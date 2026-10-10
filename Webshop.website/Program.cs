@@ -20,7 +20,7 @@ builder.Configuration.AddDotNetEnv("../.env.local");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("WebsiteDatabase"));
 });
 
 // Add Identity setup for Users and Roles
