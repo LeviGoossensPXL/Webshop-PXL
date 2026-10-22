@@ -10,4 +10,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
+      - run: make -v
+      - run: podman compose -v
       - run: make podman-build
