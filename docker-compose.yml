@@ -1,6 +1,6 @@
 services:
   webshop.website:
-    image: docker.io/darklord200/webapp:latest
+    image: docker.io/darklord2002/webshop-webapp:latest
     build:
       context: .
       dockerfile: ./Webshop.website/Dockerfile
@@ -36,7 +36,7 @@ services:
       retries: 10
 
   webshop.webapi:
-    image: docker.io/darklord200/webapi:latest
+    image: docker.io/darklord2002/webshop-webapi:latest
     build:
       context: .
       dockerfile: ./WebApi.webapi/Dockerfile
@@ -72,7 +72,7 @@ services:
       retries: 10
 
   webshop.duende:
-    image: docker.io/darklord200/duende:latest
+    image: docker.io/darklord2002/webshop-duende:latest
     build:
       context: .
       dockerfile: ./DuendeIdentityServer/Dockerfile
