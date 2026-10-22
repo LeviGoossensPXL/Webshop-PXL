@@ -1,9 +1,9 @@
 name: build
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - 4-cd-build-docker-image
     
 jobs:
   build-docker-image:
