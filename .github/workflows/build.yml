@@ -12,4 +12,5 @@ jobs:
       - uses: actions/checkout@v6
       - run: make -v
       - run: podman compose -v
-      - run: make podman-build
+      - run: podman build ./Webshop.website/
+      - run: ls -lA
