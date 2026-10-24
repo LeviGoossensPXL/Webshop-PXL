@@ -1,0 +1,141 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+    branches: [4-cd-build-docker-image]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: synology-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      NAS_HOST: ${{ vars.NAS_HOST }}
+      NAS_SSH_USER: ${{ vars.NAS_SSH_USER }}
+      NAS_SSH_PORT: ${{ vars.NAS_SSH_PORT || '22' }}
+      NAS_DEPLOY_PATH: ${{ vars.NAS_DEPLOY_PATH }}
+      NAS_COMPOSE_PROJECT: ${{ vars.NAS_COMPOSE_PROJECT || 'webshop' }}
+    steps:
+      - name: Validate deployment settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$DEPLOY_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$DOCKERHUB_USERNAME" =~ ^[a-z0-9][a-z0-9_-]*$ ]]
+          [[ "$NAS_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*$ ]]
+          [[ "$NAS_SSH_USER" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]*$ ]]
+          [[ "$NAS_SSH_PORT" =~ ^[0-9]{1,5}$ ]]
+          (( 10#$NAS_SSH_PORT >= 1 && 10#$NAS_SSH_PORT <= 65535 ))
+          [[ "$NAS_DEPLOY_PATH" =~ ^/[a-zA-Z0-9_./-]+$ ]]
+          [[ "$NAS_COMPOSE_PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]]
+
+      - name: Prepare SSH credentials
+        shell: bash
+        env:
+          NAS_SSH_PRIVATE_KEY: ${{ secrets.NAS_SSH_PRIVATE_KEY }}
+          NAS_SSH_KNOWN_HOSTS: ${{ secrets.NAS_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$NAS_SSH_PRIVATE_KEY"
+          test -n "$NAS_SSH_KNOWN_HOSTS"
+          install -d -m 700 "$RUNNER_TEMP/nas-deploy"
+          umask 077
+          printf '%s\n' "$NAS_SSH_PRIVATE_KEY" > "$RUNNER_TEMP/nas-deploy/key"
+          printf '%s\n' "$NAS_SSH_KNOWN_HOSTS" > "$RUNNER_TEMP/nas-deploy/known_hosts"
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:github-ci
+          ping: ${{ vars.NAS_HOST }}
+
+      - name: Pull and deploy release on Synology
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh \
+            -i "$RUNNER_TEMP/nas-deploy/key" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/nas-deploy/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=15 \
+            -p "$NAS_SSH_PORT" \
+            "$NAS_SSH_USER@$NAS_HOST" \
+            "sh -s -- '$NAS_DEPLOY_PATH' '$DOCKERHUB_USERNAME' '$DEPLOY_SHA' '$NAS_COMPOSE_PROJECT'" <<'DEPLOY'
+          set -eu
+          export PATH="/usr/local/bin:/var/packages/ContainerManager/target/usr/bin:$PATH"
+          cd "$1"
+          test -f docker-compose.yml
+          test -f .env.docker
+
+          if docker compose version >/dev/null 2>&1; then
+            compose() { docker compose "$@"; }
+          elif docker-compose version >/dev/null 2>&1; then
+            compose() { docker-compose "$@"; }
+          else
+            echo 'Docker Compose is not available to the deployment user.' >&2
+            exit 1
+          fi
+
+          if ! compose up --help | grep -q -- '--wait-timeout'; then
+            echo 'Update Docker Compose: deployment requires --wait and --wait-timeout.' >&2
+            exit 1
+          fi
+
+          # Override only release images and the ASP.NET environment. Keep the
+          # NAS-managed ports, network, secrets, and persistent volumes intact.
+          umask 077
+          override=$(mktemp "$PWD/.deploy-images.XXXXXX")
+          trap 'rm -f "$override"' EXIT
+          trap 'exit 1' HUP INT TERM
+          cat > "$override" <<IMAGES
+          services:
+            webshop.website:
+              image: docker.io/$2/webshop-webapp:sha-$3
+              environment:
+                ASPNETCORE_ENVIRONMENT: Production
+            webshop.webapi:
+              image: docker.io/$2/webshop-webapi:sha-$3
+              environment:
+                ASPNETCORE_ENVIRONMENT: Production
+            webshop.duende:
+              image: docker.io/$2/webshop-duende:sha-$3
+              environment:
+                ASPNETCORE_ENVIRONMENT: Production
+          IMAGES
+
+          # Keep the project name stable so existing database volumes are reused.
+          # Pull all application images before touching any running containers.
+          compose --project-name "$4" --env-file .env.docker \
+            -f docker-compose.yml -f "$override" config --quiet
+          compose --project-name "$4" --env-file .env.docker \
+            -f docker-compose.yml -f "$override" \
+            pull webshop.website webshop.webapi webshop.duende
+
+          # Record the selected release only after every image was downloaded.
+          # Keep this override for subsequent manual Compose operations.
+          mv "$override" compose.release.yml
+          compose --project-name "$4" --env-file .env.docker \
+            -f docker-compose.yml -f compose.release.yml \
+            up -d --no-build --wait --wait-timeout 180
+          DEPLOY
+
+      - name: Remove SSH credentials
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/nas-deploy/key" "$RUNNER_TEMP/nas-deploy/known_hosts"
