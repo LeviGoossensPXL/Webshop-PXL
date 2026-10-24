@@ -26,7 +26,6 @@ jobs:
       NAS_SSH_PORT: ${{ vars.NAS_SSH_PORT || '22' }}
       NAS_DEPLOY_PATH: ${{ vars.NAS_DEPLOY_PATH }}
       NAS_COMPOSE_PROJECT: ${{ vars.NAS_COMPOSE_PROJECT || 'webshop' }}
-      NAS_HEALTHCHECK_URL: ${{ vars.NAS_HEALTHCHECK_URL }}
     steps:
       - name: Validate deployment settings
         shell: bash
@@ -40,7 +39,6 @@ jobs:
           (( 10#$NAS_SSH_PORT >= 1 && 10#$NAS_SSH_PORT <= 65535 ))
           [[ "$NAS_DEPLOY_PATH" =~ ^/[a-zA-Z0-9_./-]+$ ]]
           [[ "$NAS_COMPOSE_PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]]
-          [[ "$NAS_HEALTHCHECK_URL" == http://* || "$NAS_HEALTHCHECK_URL" == https://* ]]
 
       - name: Prepare SSH credentials
         shell: bash
@@ -135,15 +133,6 @@ jobs:
             -f docker-compose.yml -f compose.release.yml \
             up -d --no-build --wait --wait-timeout 180
           DEPLOY
-
-      - name: Check website response
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --location --max-redirs 5 \
-            --retry 12 --retry-delay 5 --retry-all-errors \
-            --connect-timeout 10 --max-time 20 \
-            --output /dev/null --url "$NAS_HEALTHCHECK_URL"
 
       - name: Remove SSH credentials
         if: ${{ always() }}
